@@ -1,0 +1,13 @@
+<svg width="100%" height="100%" viewBox="0 0 150 150" version="1.1"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xml:space="preserve"
+    fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"
+    stroke-miterlimit="1.5">
+    <g>
+        <circle class="icon-bg" cx="75" cy="75" r="75" fill="none"/>
+        <g>
+            <circle cx="83.71704" cy="63.28296" r="23.29338" fill="none" stroke="currentColor" stroke-width="6"/>
+            <path d="M40.98958,106.01042L66.55903,80.44097" fill="none" stroke="currentColor" stroke-width="6"/>
+        </g>
+    </g>
+</svg>

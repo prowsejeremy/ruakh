@@ -1,0 +1,269 @@
+/* Shared structural styles for the admin dashboard and the preferences
+   section — theme-agnostic, built on --color-bg/--color-accent/--color-ink.
+   Admin overrides those vars to a fixed dark palette; preferences inherits
+   whatever the active theme sets. One source of truth so the two can't drift. */
+
+.panel-main {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.panel-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  width: 2rem;
+  height: 2rem;
+}
+
+.panel-close {
+  display: inline-flex;
+  margin-left: auto;
+  text-decoration: none;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Keep the trailing icon from stretching the button taller than its text. */
+.panel-menu-btn .icon {
+  margin-block: -0.5rem;
+}
+
+.panel-title {
+  font-size: var(--text-sub-heading);
+  font-weight: 700;
+}
+
+p.panel-blurb {
+  font-size: var(--text-small);
+  opacity: 0.85;
+}
+
+.panel-search-wrap {
+  position: relative;
+}
+
+.panel-search {
+  font: inherit;
+  font-size: var(--text-body);
+  background: none;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.5rem;
+  padding: 0.6rem 2.6rem 0.6rem 0.9rem; /* right padding clears the icon */
+  color: inherit;
+  width: 100%;
+}
+
+.panel-search-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  pointer-events: none;
+}
+
+.panel-search::placeholder {
+  color: var(--color-ink);
+  opacity: 0.5;
+}
+
+.panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.panel-card {
+  display: block;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.5rem;
+  padding: 0.9rem 1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.panel-card-title {
+  margin-bottom: 0.25rem;
+}
+
+.panel-card-meta {
+  font-size: var(--text-small);
+  opacity: 0.75;
+}
+
+.panel-card-flag {
+  font-size: var(--text-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.panel-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.5rem;
+  padding: 0.9rem 1rem;
+  font: inherit;
+  font-size: var(--text-body);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.panel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: var(--text-small);
+}
+
+/* A field title row: the label on the left, an optional action (e.g. the
+   markdown formatting-help toggle) pushed to the right. Wraps so a disclosed
+   panel can drop onto its own full-width line beneath the title. */
+.panel-field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.panel-field input[type="text"],
+.panel-field input[type="email"],
+.panel-field textarea {
+  font: inherit;
+  font-size: var(--text-body);
+  background: none;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  color: inherit;
+  resize: vertical;
+}
+
+.panel-field input[type="color"] {
+  width: 100%;
+  height: 2.5rem;
+  background: none;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+}
+
+.panel-field input[type="time"] {
+  font: inherit;
+  background: none;
+  border: 1px solid var(--color-ink);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  color: inherit;
+}
+
+.panel-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-small);
+}
+
+.panel-save {
+  background: var(--color-ink);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-size: var(--text-body);
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+}
+
+.panel-link-btn {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: var(--text-small);
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-note {
+  font-size: var(--text-small);
+  max-width: 28rem;
+}
+
+.panel-error {
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+
+.panel-nav {
+  margin-top: auto;
+  font-size: var(--text-small);
+}
+
+.panel-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  gap: 1.25rem;
+}
+
+.panel-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.panel-swatch-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(
+    135deg,
+    var(--sw-bg) 0 42%,
+    var(--sw-line) 42% 58%,
+    var(--sw-bg) 58% 100%
+  );
+}
+
+.panel-swatch-name {
+  font-size: var(--text-small);
+  text-align: center;
+}
+
+.panel-swatch.active .panel-swatch-preview {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}

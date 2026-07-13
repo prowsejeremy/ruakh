@@ -1,0 +1,59 @@
+:root {
+  /* Canonical palette from PatternBackground.svelte's defaults — keep in sync. */
+  --color-bg: #f7a31a; /* orange field (PatternBackground paints the viewport; this is the fallback) */
+  --color-accent: #f5350b; /* red-orange flowing lines */
+  --color-ink: #131313; /* near-black text */
+  --color-ink-rgb:
+    19, 19, 19; /* --color-ink as "r, g, b" for rgba(var(--color-ink-rgb), a) */
+
+  --font-display: "PT Serif", Georgia, "Times New Roman", serif;
+
+  --text-wordmark: clamp(4.5rem, 18vw, 9rem);
+  --text-heading: clamp(2.5rem, 9vw, 4rem);
+  --text-sub-heading: clamp(1.5rem, 3vw, 1.8rem);
+  --text-large: 1.4rem;
+  --text-body: 1.2rem;
+  --text-small: 1rem;
+
+  /* Global wordmark header (root layout): 1.75rem text at line-height 1,
+     vertically centered in this slot. Full-viewport screens subtract it. */
+  --app-header-height: 4.75rem;
+
+  /* transition timing function */
+  --transition-timing: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100vh;
+  min-height: 100dvh; /* mobile address-bar-aware viewport; older Safari falls back to the line above */
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+small {
+  font-size: var(--text-small);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(var(--color-ink-rgb), 0.2);
+  margin: 4rem 0;
+}
+
+a {
+  color: inherit;
+}

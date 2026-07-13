@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="text-scale" content="scale" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#f7a31a" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <script>
+      // Apply the saved theme before first paint — no flash of the default palette.
+      // NOTE: inline + un-nonced. If a CSP is ever added, use SvelteKit's `csp`
+      // config (it auto-hashes app.html inline scripts) — don't add a bare
+      // script-src header at a proxy or this flash-prevention silently breaks.
+      try {
+        var t = JSON.parse(localStorage.getItem('ruakh:theme'));
+        if (t && t.bg) {
+          var s = document.documentElement.style;
+          s.setProperty('--color-bg', t.bg);
+          s.setProperty('--color-accent', t.line);
+          s.setProperty('--color-ink', t.ink);
+          var ih = t.ink.replace('#', '');
+          if (ih.length === 3) ih = ih[0] + ih[0] + ih[1] + ih[1] + ih[2] + ih[2];
+          var in_ = parseInt(ih, 16);
+          s.setProperty('--color-ink-rgb', ((in_ >> 16) & 255) + ', ' + ((in_ >> 8) & 255) + ', ' + (in_ & 255));
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', t.bg);
+        }
+      } catch (e) {}
+    </script>
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+<svg width="100%" height="100%" viewBox="0 0 150 150" version="1.1"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xml:space="preserve"
+    fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"
+    stroke-miterlimit="1.5">
+    <g>
+        <circle class="icon-bg" cx="75" cy="75" r="75" fill="none"/>
+        <path d="M75,113.09235C75,113.09235 43.50906,83.7288 38.08888,78.30863C29.89385,70.1136 32.47843,56.78855 36.47843,50.77357C40.47843,44.7586 48.85002,40.74598 55.39954,40.91265C61.63872,41.07142 71.30454,45.23002 75,53.0025C78.69546,45.23002 88.36128,41.07142 94.60046,40.91265C101.14998,40.74598 109.52157,44.7586 113.52157,50.77357C117.52157,56.78855 120.10615,70.1136 111.91112,78.30863C106.49094,83.7288 75,113.09235 75,113.09235Z" fill="none" stroke="currentColor" stroke-width="6"/>
+    </g>
+</svg>
