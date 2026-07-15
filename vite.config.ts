@@ -19,6 +19,6 @@ export default defineConfig({
   server: {
     // Allow the Caddy dev vhost (docker/compose-dev.yml) to reach the dev
     // server — Vite otherwise blocks Host headers it doesn't recognise.
-    allowedHosts: ["ruakh.test", "localhost", "host.docker.internal"],
+    allowedHosts: [process.env.APP_HOST ? process.env.APP_HOST : "ruakh.test"],
   },
 });
