@@ -32,7 +32,7 @@ jobs:
           DATABASE_URL=postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ vars.POSTGRES_HOST }}:${{ vars.POSTGRES_PORT }}/${{ secrets.POSTGRES_DB }}
 
           # Web Push (VAPID). Leave the secrets empty to keep the scheduler idle.
-          PUBLIC_VAPID_KEY=${{ secrets.PUBLIC_VAPID_KEY }}
+          PUBLIC_VAPID_KEY=${{ vars.PUBLIC_VAPID_KEY }}
           PRIVATE_VAPID_KEY=${{ secrets.PRIVATE_VAPID_KEY }}
           VAPID_SUBJECT=${{ vars.VAPID_SUBJECT }}
           EOF
