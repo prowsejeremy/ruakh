@@ -1,0 +1,30 @@
+# Keep the build context (and final image) small. The runner stage copies only
+# the compiled build/, pruned node_modules, package.json, and drizzle/ — so
+# source, tooling, and local state never reach production.
+
+# Dependencies + build output (rebuilt inside the image)
+node_modules
+.svelte-kit
+build
+
+# Deploy tooling / artifacts (not needed inside the image)
+deploy
+*.tar
+
+# Local + CI state
+.git
+.github
+.vscode
+.claude
+docs
+
+# Secrets and env (provided at runtime via env_file on the server)
+.env
+.env.*
+!.env.example
+
+# OS / misc
+.DS_Store
+Thumbs.db
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

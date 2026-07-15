@@ -1,12 +1,12 @@
-import webpush from 'web-push';
-import { env } from '$env/dynamic/private';
+import webpush from "web-push";
+import { env } from "$env/dynamic/private";
 // PUBLIC_-prefixed vars are NOT exposed via $env/dynamic/private — the public
 // key must come from the public env module.
-import { env as publicEnv } from '$env/dynamic/public';
-import { utcDateKey } from '$lib/daily';
-import { getPublishedReflections } from '../db/reflections';
-import { dueForSend } from './schedule';
-import { allSubscriptions, markSent, deleteById } from './subscriptions';
+import { env as publicEnv } from "$env/dynamic/public";
+import { utcDateKey } from "$lib/daily";
+import { getPublishedReflections } from "../db/reflections";
+import { dueForSend } from "./schedule";
+import { allSubscriptions, markSent, deleteById } from "./subscriptions";
 
 let configured = false;
 
@@ -14,7 +14,7 @@ let configured = false;
 function ensureConfigured(): boolean {
   if (configured) return true;
   const publicKey = publicEnv.PUBLIC_VAPID_KEY;
-  const privateKey = env.VAPID_PRIVATE_KEY;
+  const privateKey = env.PRIVATE_VAPID_KEY;
   const subject = env.VAPID_SUBJECT;
   if (!publicKey || !privateKey || !subject) return false;
   webpush.setVapidDetails(subject, publicKey, privateKey);
@@ -23,8 +23,8 @@ function ensureConfigured(): boolean {
 }
 
 const PAYLOAD = JSON.stringify({
-  title: 'ruakh',
-  body: 'Today’s reflection is waiting. Take a moment to breathe.'
+  title: "ruakh",
+  body: "Today’s reflection is waiting. Take a moment to breathe.",
 });
 
 // Statuses that mean this subscription can NEVER succeed with our VAPID key:
@@ -58,9 +58,12 @@ export async function sendDueReminders(now: Date = new Date()): Promise<void> {
       if (!dueForSend(sub, now)) continue;
       try {
         await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
           PAYLOAD,
-          { timeout: 10_000 } // a hung endpoint must not stall the loop
+          { timeout: 10_000 }, // a hung endpoint must not stall the loop
         );
         await markSent(sub.id, today);
       } catch (err) {
@@ -72,7 +75,7 @@ export async function sendDueReminders(now: Date = new Date()): Promise<void> {
           // Transient failures (5xx, network, encryption quirks): leave the
           // row; the next tick retries. Log so self-hosters see problems.
           console.warn(
-            `[push] send failed (status=${status ?? 'n/a'}): ${(err as Error).message ?? err}`
+            `[push] send failed (status=${status ?? "n/a"}): ${(err as Error).message ?? err}`,
           );
         }
       }

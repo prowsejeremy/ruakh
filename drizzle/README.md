@@ -1,24 +1,26 @@
 # Migrations
 
-Applied with `npm run db:migrate` (SQL files + `meta/_journal.json`). Verified to
-apply cleanly on both an existing dev DB and a fresh database; `npm run db:seed`
-then fills quotes + the about page (themes are seeded by migration 0003).
+Drizzle migrations. `schema.ts` (`src/lib/server/db/schema.ts`) is the **source of
+truth**; the `*.sql` files and `meta/` snapshots are generated from it — don't edit
+them by hand.
 
-## Known follow-up: snapshot re-baseline before the next `db:generate`
+## Making a schema change
 
-`0003_admin_refinement.sql` was **hand-authored** (drizzle-kit's generator needs
-an interactive TTY to resolve the `content_blocks` → `pages` table rename, which
-isn't available here). Because of that, there is **no `meta/0003_snapshot.json`**.
+1. Edit `src/lib/server/db/schema.ts` (add/alter a table, column, index, …).
+2. `npm run db:generate` — drizzle-kit diffs the schema against the latest snapshot
+   in `meta/` and writes a new `NNNN_*.sql` migration + snapshot.
+3. `npm run db:migrate` — applies pending migrations. `meta/_journal.json` and the
+   `drizzle.__drizzle_migrations` table track what has run, so it's idempotent and
+   safe on every deploy (the app image runs `docker/migrate.mjs` on start).
+4. `npm run db:seed` fills reflections + the about page (themes are seeded in-schema
+   as needed).
 
-Consequence: the next `drizzle-kit generate` will diff the schema against the
-stale `0002_snapshot.json` and emit a bogus migration. It fails *loudly* at apply
-time ("relation already exists") — it does not silently corrupt data — but it must
-be re-baselined before doing any further schema work.
+## History
 
-**To re-baseline (do this interactively at the next schema change):** squash the
-history into a single baseline that matches the current schema — delete the
-`*.sql` files + `meta/*`, run `drizzle-kit generate` (no prior state → no rename
-prompt → produces a correct baseline + snapshot), then re-stamp any already-migrated
-database's `drizzle.__drizzle_migrations` so `migrate` treats the baseline as
-applied. Since nothing here is committed yet and fresh deployments have no data to
-preserve, a squashed baseline is the clean end state.
+The migration history was **squashed to a single baseline**
+(`0000_baseline.sql`) generated from the current schema, verified to
+reproduce the running database exactly. The previously-tracked `0000`–`0004`
+migrations (including the hand-authored `0003` rename that had broken the snapshot
+chain) were removed. The existing dev database was re-stamped so its
+`drizzle.__drizzle_migrations` table records only this baseline; fresh deployments
+replay the single baseline to reach the same schema.

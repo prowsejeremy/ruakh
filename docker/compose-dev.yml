@@ -1,0 +1,81 @@
+# Fully-dockerised local dev environment: SvelteKit dev server (HMR) + Postgres.
+# Run from the repo root:
+#   docker compose -f docker/compose-dev.yml up
+# then open http://localhost:5173. Migrations: `npm run db:migrate` inside the
+# app container, or against the exposed DB from the host.
+#
+# (For host-based dev with only a Dockerised DB, use the root docker-compose.yml
+# instead — see README.)
+name: ruakh-dev
+services:
+  app:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    environment:
+      DATABASE_URL: postgres://ruakh:ruakh@db:5432/ruakh
+    volumes:
+      - ../:/app
+      # Anonymous volume keeps container-built (alpine) node_modules from
+      # clobbering the host's.
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      caddy: ruakh.test
+      caddy.reverse_proxy: "{{upstreams 5173}}"
+      caddy.tls: "internal"
+    networks:
+      - default
+      - caddy
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ruakh
+      POSTGRES_PASSWORD: ruakh
+      POSTGRES_DB: ruakh
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ruakh -d ruakh"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ruakh_pgdata_dev:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      # Required by pgAdmin
+      PGADMIN_DEFAULT_EMAIL: hello@ruakh.test
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+      # Don't require the user to login
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+
+      # Don't require a "master" password after logging in
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    labels:
+      caddy_3: pgadmin.test
+      caddy_3.reverse_proxy: "{{upstreams 80}}"
+      caddy_3.tls: "internal"
+    volumes:
+      - ~/.ssh/id_rsa:/etc/ssh/id_rsa:ro
+    networks:
+      - default
+      - caddy
+
+volumes:
+  ruakh_pgdata_dev:
+
+networks:
+  caddy:
+    external: true

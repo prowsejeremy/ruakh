@@ -8,15 +8,17 @@ node_modules
 /.svelte-kit
 /build
 
+# Docker
+*-image.tar
+
 # OS
 .DS_Store
 Thumbs.db
 
 # Env
-.env
-.env.*
-!.env.example
-!.env.test
+.env*
+deploy/connection_variables.sh
+!.env.dev.example
 
 # Vite
 vite.config.js.timestamp-*

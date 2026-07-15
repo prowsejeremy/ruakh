@@ -1,0 +1,7 @@
+#!/bin/bash
+# Connection variables for SSH access to the EC2 instance
+
+EC2_USER="EC2_USER"
+EC2_HOST="EC2_HOST" # Elastic IP as specified in README.md
+EC2_KEY_PATH="EC2_KEY_PATH" # ec2 .pem file as specified in README.md
+EC2_APP_DIR="EC2_APP_DIR" # Path to app files on ec2 instance

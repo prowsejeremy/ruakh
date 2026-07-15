@@ -1,0 +1,65 @@
+name: Generate and Sync Env Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_env_files:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate .env files
+        run: |
+          echo "🛠️ Generating .env files from GitHub Secrets and Variables..."
+
+          # Consumed by the SvelteKit (adapter-node) container.
+          cat <<EOF > .env.app
+          # Runtime
+          NODE_ENV=production
+
+          # adapter-node — trust the nginx proxy and know our public origin (CSRF).
+          ORIGIN=https://${{ vars.APP_HOST }}
+          PROTOCOL_HEADER=x-forwarded-proto
+          HOST_HEADER=x-forwarded-host
+
+          # Database — 'db' is the Postgres service on the compose network.
+          DATABASE_URL=postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ vars.POSTGRES_HOST }}:${{ vars.POSTGRES_PORT }}/${{ secrets.POSTGRES_DB }}
+
+          # Web Push (VAPID). Leave the secrets empty to keep the scheduler idle.
+          PUBLIC_VAPID_KEY=${{ secrets.PUBLIC_VAPID_KEY }}
+          PRIVATE_VAPID_KEY=${{ secrets.PRIVATE_VAPID_KEY }}
+          VAPID_SUBJECT=${{ vars.VAPID_SUBJECT }}
+          EOF
+
+          # Consumed by the Postgres container on first init.
+          cat <<EOF > .env.db
+          POSTGRES_USER=${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ vars.POSTGRES_DB }}
+          EOF
+
+          echo "✅ .env files generated successfully!"
+
+      - name: Setup SSH
+        run: |
+          echo "📂 Creating the .ssh directory..."
+          mkdir -p ~/.ssh
+
+          echo "🔑 Extracting the private key from secrets into a file..."
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key.pem
+
+          echo "🔒 Setting strict permissions for the SSH key..."
+          chmod 600 ~/.ssh/deploy_key.pem
+
+      - name: Sync files to Server
+        run: |
+          echo "🚀 Syncing .env files to the server using rsync..."
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key.pem -o StrictHostKeyChecking=no" \
+            .env.app .env.db \
+            ${{ vars.REMOTE_USER }}@${{ vars.REMOTE_HOST }}:${{ vars.REMOTE_APP_DIR }}
