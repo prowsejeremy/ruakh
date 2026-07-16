@@ -9,10 +9,10 @@ reflect on. _Ruakh_ (רוּחַ) is the Hebrew word for "breath," "wind," or
 "spirit" — in a loud and fast-paced world, this is a space to slow down.
 
 <p align="center">
-  <img src="static/screenshots/01_intro.png" alt="intro" width="150" />
-  <img src="static/screenshots/02_reflection.png" alt="reflection" width="150" />
-  <img src="static/screenshots/03_themes.png" alt="preferences - themes" width="150" />
-  <img src="static/screenshots/04_favorites.png" alt="preferences - favorites" width="150" />
+  <img src="screenshots/01_intro.png" alt="intro" width="150" />
+  <img src="screenshots/02_reflection.png" alt="reflection" width="150" />
+  <img src="screenshots/03_themes.png" alt="preferences - themes" width="150" />
+  <img src="screenshots/04_favorites.png" alt="preferences - favorites" width="150" />
 </p>
 
 ## Principles

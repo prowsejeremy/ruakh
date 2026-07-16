@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "ruakh — daily reflection",
+  "name": "ruakh",
   "short_name": "ruakh",
-  "description": "A space to slow down. One curated reflection each day.",
+  "description": "A space to slow down, breathe and reflect.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,7 +11,7 @@
   "icons": [
     {
       "src": "/app-icons/ruakh.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml"
     }
   ]
