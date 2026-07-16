@@ -3,7 +3,6 @@
   import '$lib/styles/app.css';
   import '$lib/styles/panel.css';
   import '$lib/client/install.svelte'; // early beforeinstallprompt capture
-  import favicon from '$lib/assets/favicon.svg';
   import { page } from '$app/state';
   import PatternBackground from '$lib/components/PatternBackground.svelte';
   import Logo from '$lib/components/Logo.svelte';
@@ -31,7 +30,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={favicon} />
+  <link rel="icon" href={'/app-icons/ruakh.svg'} />
   <!-- Preload the two faces used at first paint (wordmark + reflection body); crossorigin is required for font preloads. -->
   <link rel="preload" href="/fonts/PT-Serif/PTSerifBold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <link rel="preload" href="/fonts/PT-Serif/PTSerif.woff2" as="font" type="font/woff2" crossorigin="anonymous" />

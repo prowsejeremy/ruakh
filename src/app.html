@@ -6,7 +6,7 @@
     <meta name="text-scale" content="scale" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#f7a31a" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/app-icons/ruakh.svg" />
     <script>
       // Apply the saved theme before first paint — no flash of the default palette.
       // NOTE: inline + un-nonced. If a CSP is ever added, use SvelteKit's `csp`
@@ -17,22 +17,30 @@
         var m = document.querySelector('meta[name="theme-color"]');
         // The /admin area uses a fixed dark palette instead of the saved theme.
         // Mirrors ADMIN_THEME in src/lib/themes.ts — keep the hex values in sync.
-        if (location.pathname.indexOf('/admin') === 0) {
-          s.setProperty('--color-bg', '#111111');
-          s.setProperty('--color-ink', '#f9f8f6');
-          s.setProperty('--color-ink-rgb', '249, 248, 246');
-          if (m) m.setAttribute('content', '#111111');
+        if (location.pathname.indexOf("/admin") === 0) {
+          s.setProperty("--color-bg", "#111111");
+          s.setProperty("--color-ink", "#f9f8f6");
+          s.setProperty("--color-ink-rgb", "249, 248, 246");
+          if (m) m.setAttribute("content", "#111111");
         } else {
-          var t = JSON.parse(localStorage.getItem('ruakh:theme'));
+          var t = JSON.parse(localStorage.getItem("ruakh:theme"));
           if (t && t.bg) {
-            s.setProperty('--color-bg', t.bg);
-            s.setProperty('--color-accent', t.line);
-            s.setProperty('--color-ink', t.ink);
-            var ih = t.ink.replace('#', '');
-            if (ih.length === 3) ih = ih[0] + ih[0] + ih[1] + ih[1] + ih[2] + ih[2];
+            s.setProperty("--color-bg", t.bg);
+            s.setProperty("--color-accent", t.line);
+            s.setProperty("--color-ink", t.ink);
+            var ih = t.ink.replace("#", "");
+            if (ih.length === 3)
+              ih = ih[0] + ih[0] + ih[1] + ih[1] + ih[2] + ih[2];
             var in_ = parseInt(ih, 16);
-            s.setProperty('--color-ink-rgb', ((in_ >> 16) & 255) + ', ' + ((in_ >> 8) & 255) + ', ' + (in_ & 255));
-            if (m) m.setAttribute('content', t.bg);
+            s.setProperty(
+              "--color-ink-rgb",
+              ((in_ >> 16) & 255) +
+                ", " +
+                ((in_ >> 8) & 255) +
+                ", " +
+                (in_ & 255),
+            );
+            if (m) m.setAttribute("content", t.bg);
           }
         }
       } catch (e) {}
