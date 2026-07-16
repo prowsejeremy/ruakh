@@ -11,8 +11,6 @@
   import type { ReflectionView } from '$lib/types';
   import type { PageData } from './$types';
 
-  const INTRO_MS = 1600;
-
   let { data }: { data: PageData } = $props();
   // Play the intro once per full page load — not on every client-side return
   // to `/`. `intro.done` also gates the root layout's header wordmark.
@@ -51,12 +49,6 @@
 
   onMount(() => {
     if (browser) void initContentAndHistory();
-
-    if (intro.done) return;
-    const t = setTimeout(() => {
-      intro.done = true;
-    }, INTRO_MS);
-    return () => clearTimeout(t);
   });
 </script>
 
@@ -65,7 +57,7 @@
 </svelte:head>
 
 {#if showIntro}
-  <IntroScreen />
+  <IntroScreen oncomplete={() => (intro.done = true)} />
 {:else}
   <ReflectionScreen reflection={shownReflection} />
   <InstallHint />

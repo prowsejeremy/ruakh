@@ -55,11 +55,45 @@ export function resolveStaggerOrder(items: StaggerItem[]): number[] {
   return resolved;
 }
 
+/**
+ * Wall-clock ms from a batch's start until its last-finishing item completes.
+ * Zero for an empty batch. Each item ends at `delay + slot*step + duration`;
+ * the span is the maximum across the batch (the slowest chain, not the last
+ * registered).
+ */
+export function batchSpan(
+  items: { slot: number; step: number; duration: number; delay: number }[],
+): number {
+  return items.reduce(
+    (max, it) => Math.max(max, it.delay + it.slot * it.step + it.duration),
+    0,
+  );
+}
+
+/**
+ * How long an entering batch waits so a leaving batch can (partly) clear first.
+ * `gate` 0 = concurrent (today's behaviour, no wait); 1 = fully sequential (wait
+ * the whole out-span); values between overlap the two. Clamped to [0, 1].
+ */
+export function handoffDelay(outSpan: number, gate: number): number {
+  return outSpan * Math.min(1, Math.max(0, gate));
+}
+
+// How much of the leaving batch's span the entering batch waits through before
+// it starts. Tunable knob for the intro→home handoff: 0 restores the fully
+// concurrent look, 1 is fully sequential, in-between is a partial overlap.
+const HANDOFF_GATE = 1;
+
 interface BatchEntry {
   node: Element;
   index?: number;
   seq: number;
   slot: number;
+  step: number;
+  duration: number;
+  delay: number;
+  /** Extra lead-in applied to `in` entries so a leaving batch clears first. */
+  handoff: number;
 }
 
 // Ins and outs batch separately: a screen swap creates both directions in the
@@ -67,10 +101,7 @@ interface BatchEntry {
 const batches: Record<"in" | "out", BatchEntry[]> = { in: [], out: [] };
 let seq = 0;
 
-function flush(dir: "in" | "out") {
-  const entries = batches[dir];
-  if (entries.length === 0) return;
-  batches[dir] = [];
+function measureSlots(entries: BatchEntry[]) {
   const slots = resolveStaggerOrder(
     entries.map((e) => {
       const rect = e.node.getBoundingClientRect();
@@ -78,6 +109,24 @@ function flush(dir: "in" | "out") {
     }),
   );
   entries.forEach((e, i) => (e.slot = slots[i]));
+}
+
+// Both directions flush together in a single pass: a screen swap registers its
+// out and in transitions in the same synchronous tick, so the first flush of
+// the tick (from Svelte's deferred-config call, or the microtask fallback)
+// measures the whole out batch and applies its span as the in batch's handoff.
+// Coordinating them here — rather than storing the out span across flushes —
+// means no ordering dependency and no stale span leaking into a later nav.
+function flush() {
+  const out = batches.out;
+  const inn = batches.in;
+  if (out.length === 0 && inn.length === 0) return;
+  batches.out = [];
+  batches.in = [];
+  measureSlots(out);
+  measureSlots(inn);
+  const handoff = handoffDelay(batchSpan(out), HANDOFF_GATE);
+  inn.forEach((e) => (e.handoff = handoff));
 }
 
 export function reveal(
@@ -98,23 +147,26 @@ export function reveal(
   if (!enabled) return { duration: 0 };
 
   const dir = options.direction === "out" ? "out" : "in";
-  const entry: BatchEntry = { node, index, seq: seq++, slot: 0 };
+  const entry: BatchEntry = {
+    node,
+    index,
+    seq: seq++,
+    slot: 0,
+    step,
+    duration,
+    delay,
+    handoff: 0,
+  };
   batches[dir].push(entry);
   // Deferred config: Svelte calls this after every same-tick transition has
   // registered, so the first call can measure and order the whole batch.
   // The microtask fallback clears entries whose transition never starts.
-  queueMicrotask(() => flush(dir));
+  queueMicrotask(flush);
   return () => {
-    flush(dir);
-    if (
-      typeof matchMedia !== "undefined" &&
-      matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return { duration: 0 };
-    }
+    flush();
     const sign = dir === "out" ? -1 : 1;
     return {
-      delay: delay + entry.slot * step,
+      delay: delay + entry.handoff + entry.slot * step,
       duration,
       easing,
       // In rises from +y to rest; out continues from rest up to -y.

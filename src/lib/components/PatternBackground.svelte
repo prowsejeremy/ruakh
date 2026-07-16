@@ -1,20 +1,18 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
+  import {reveal} from '$lib/transitions';
   import {
     generateLines,
-    planRotation,
-    interpolateLines,
     rescaleLines,
-    easeInOutCubic,
     type PatternLine
   } from '$lib/pattern';
 
   /**
    * Procedural pattern background: 1-2 thick curved lines that never touch.
-   * The lines rotate to a fresh, collision-free arrangement whenever
-   * `routeKey` changes — pass the current path so it animates per navigation.
+   * The lines are generated once and stay put across navigation — only a
+   * viewport resize repositions them (rescaled in place, same arrangement).
    * All geometry lives in $lib/pattern (pure, unit-tested); this component
-   * owns only viewport state, the animation loop, and the markup.
+   * owns only viewport state and the markup.
    */
 
   type Props = {
@@ -22,13 +20,9 @@
     background?: string;
     /** line color; pass an array to color lines individually */
     lineColor?: string | string[];
-    /** change this (e.g. current path) to trigger a rotation */
-    routeKey?: unknown;
-    /** per-endpoint rotation range on change (degrees) */
-    rotationMin?: number;
-    rotationMax?: number;
-    /** rotation animation length (ms) */
-    duration?: number;
+    /** hold the lines back until true — lets the intro draw them in only
+     *  after the reflection has loaded (see the root layout) */
+    revealLines?: boolean;
     /** stacking; the layer is pointer-events:none */
     zIndex?: number;
   };
@@ -36,19 +30,18 @@
   let {
     background = 'var(--color-bg)',
     lineColor = 'var(--color-accent)',
-    routeKey = undefined,
-    rotationMin = 20,
-    rotationMax = 60,
-    duration = 850,
+    revealLines = true,
     zIndex = 0
   }: Props = $props();
+
+  // Delay the lines' reveal a beat so, on the home intro, they draw in just
+  // after the reflection has appeared rather than alongside it.
+  const LINE_REVEAL_DELAY = 400;
 
   let lines = $state<PatternLine[]>([]);
   let W = $state(1200);
   let H = $state(800);
   let mounted = false;
-  let lastKey: unknown;
-  let raf = 0;
 
   const size = () => ({ w: W, h: H });
   const strokeFor = (i: number) =>
@@ -59,70 +52,45 @@
     H = window.innerHeight || 800;
   }
 
-  function rotate() {
-    if (!lines.length) {
-      lines = generateLines(size());
-      return;
-    }
-    const from = lines.map((l) => ({ ...l }));
-    const targets = planRotation(size(), from, rotationMin, rotationMax);
-
-    // Respect reduced-motion preferences: jump straight to the new arrangement.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      lines = targets;
-      return;
-    }
-
-    cancelAnimationFrame(raf);
-    const start = performance.now();
-    const step = (now: number) => {
-      const p = Math.min(1, (now - start) / duration);
-      lines = interpolateLines(size(), from, targets, easeInOutCubic(p));
-      if (p < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-  }
-
   onMount(() => {
     measure();
-    lines = generateLines(size());
-    lastKey = routeKey; // don't rotate on first render
+    if (revealLines) lines = generateLines(size());
     mounted = true;
 
+    // Resize keeps the SAME arrangement — rescaled in place, not regenerated.
+    // Navigation never regenerates: the lines are static once drawn.
     const onResize = () => {
       const prev = size();
       measure();
-      lines = lines.length ? rescaleLines(size(), prev, lines) : generateLines(size());
+      if (lines.length) lines = rescaleLines(size(), prev, lines);
+      else if (revealLines) lines = generateLines(size());
     };
     window.addEventListener('resize', onResize);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      cancelAnimationFrame(raf);
-    };
+    return () => window.removeEventListener('resize', onResize);
   });
 
-  // Rotate whenever routeKey changes (after the initial mount). untrack() so
-  // the effect depends only on routeKey — rotate() writes `lines`, which must
-  // not become a dependency (it would loop).
+  // When the gate opens after mount (the home intro finishing), generate the
+  // lines so their `in:reveal` plays. No-op elsewhere: other routes pass
+  // revealLines=true and generate on mount above.
   $effect(() => {
-    const key = routeKey;
-    if (!mounted || key === lastKey) return;
-    lastKey = key;
-    untrack(() => rotate());
+    if (revealLines && mounted && lines.length === 0) {
+      untrack(() => (lines = generateLines(size())));
+    }
   });
 </script>
 
 <div class="pattern-bg" style="background:{background}; z-index:{zIndex};">
-  <span class="background-texture"></span>
+  <!-- <span class="background-texture"></span> -->
   <svg width="100%" height="100%" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">
     {#each lines as line, i (i)}
       <path
         d={line.d}
         fill="none"
         style="stroke: {strokeFor(i)}"
-        stroke-width={line.w}
+        stroke-width="80"
         stroke-linecap="round"
         stroke-linejoin="round"
+        in:reveal={{ delay: LINE_REVEAL_DELAY }}
       />
     {/each}
   </svg>
@@ -136,13 +104,14 @@
     height: 100%;
     overflow: hidden;
     pointer-events: none;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
   }
-  .pattern-bg svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  .background-texture {
+  /* .background-texture {
     background-image: url('/texture.jpg');
     background-size: cover;
     background-position: center;
@@ -153,5 +122,5 @@
     height: 100%;
     mix-blend-mode: multiply;
     opacity: 0.5;
-  }
+  } */
 </style>

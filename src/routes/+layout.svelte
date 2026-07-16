@@ -10,6 +10,7 @@
   import { loadTheme, applyTheme } from '$lib/client/theme';
   import { ADMIN_THEME } from '$lib/themes';
   import { intro } from '$lib/client/intro.svelte';
+  import {reveal} from '$lib/transitions';
 
   let { children } = $props();
 
@@ -39,7 +40,10 @@
 <!-- zIndex -1: a fixed layer at z-index 0 would paint over in-flow content.
      Not rendered on admin: the base theme paints a flat dark background there. -->
 {#if !isAdmin}
-  <PatternBackground routeKey={page.url.pathname} zIndex={-1} />
+  <!-- On `/` the lines stay hidden until the intro finishes (intro.done),
+       so they draw in just after the reflection; everywhere else they show
+       immediately. Static once generated — no per-route rotation. -->
+  <PatternBackground zIndex={-1} revealLines={intro.done || page.url.pathname !== '/'} />
 {/if}
 <header class="app-header">
   <!-- On `/` the wordmark waits for the intro so the intro's h1 can morph
@@ -47,7 +51,7 @@
        immediately, SSR included. Once mounted it survives client-side
        navigation, so the morph never replays. -->
   {#if intro.done || page.url.pathname !== '/'}
-    <a href="/">
+    <a href="/" in:reveal>
       <Logo size={'5rem'} />
     </a>
   {/if}

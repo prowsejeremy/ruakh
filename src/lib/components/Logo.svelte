@@ -5,11 +5,12 @@
 <script lang="ts">
   let {
     size = '2rem',
-  }: { size?: string } = $props();
+    className
+  }: { className?: string; size?: string } = $props();
 </script>
 
 <span
-  class="logo"
+  class="logo {className}"
   style:width={size}
   aria-hidden="true">{@html RuakhLogo}</span
 >
@@ -19,12 +20,14 @@
     display: inline-block;
     flex: none;
     width: 100%;
-  }
-  .logo :global(svg) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    color: var(--color-ink);
-    transition: fill 300ms var(--transition-timing);
+
+    /* :global is necessary — the SVG is injected via {@html}. */
+    :global(svg) {
+      display: block;
+      width: 100%;
+      height: 100%;
+      color: var(--color-ink);
+      transition: fill 300ms var(--transition-timing);
+    }
   }
 </style>

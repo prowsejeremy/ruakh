@@ -87,6 +87,11 @@
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+
+    .panel-link-btn {
+      position: relative;
+      z-index: 1;
+    }
   }
 
   /* Stretched link: the whole card navigates, while the remove button
@@ -98,16 +103,11 @@
   .card-link {
     text-decoration: none;
     color: inherit;
-  }
 
-  .card-link::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-
-  .meta-row .panel-link-btn {
-    position: relative;
-    z-index: 1;
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
   }
 </style>

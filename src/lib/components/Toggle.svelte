@@ -48,9 +48,17 @@
     display: inline-block;
     width: var(--track-w);
     height: var(--track-h);
-  }
-  .toggle.disabled {
-    opacity: 0.5;
+
+    &.disabled {
+      opacity: 0.5;
+    }
+    &.on .track {
+      background: #10e260;
+    }
+    &.on .knob {
+      background: #f5f3ee;
+      translate: calc(var(--track-w) - var(--knob) - var(--pad) * 2) 0;
+    }
   }
 
   /* The real control: fills the switch, invisible, sits on top so direct
@@ -64,9 +72,14 @@
     opacity: 0;
     cursor: pointer;
     z-index: 1;
-  }
-  .native:disabled {
-    cursor: not-allowed;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+    &:focus-visible ~ .track {
+      outline: 2px solid var(--color-ink);
+      outline-offset: 2px;
+    }
   }
 
   .track {
@@ -77,9 +90,6 @@
     background: transparent;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.15) inset;
     transition: background-color 180ms var(--transition-timing);
-  }
-  .toggle.on .track {
-    background: #10e260;
   }
 
   .knob {
@@ -92,21 +102,5 @@
     background: var(--color-ink);
     translate: 0 0;
     transition: translate 300ms var(--transition-timing), background 300ms var(--transition-timing);
-  }
-  .toggle.on .knob {
-    background: #f5f3ee;
-    translate: calc(var(--track-w) - var(--knob) - var(--pad) * 2) 0;
-  }
-
-  .native:focus-visible ~ .track {
-    outline: 2px solid var(--color-ink);
-    outline-offset: 2px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .track,
-    .knob {
-      transition: none;
-    }
   }
 </style>

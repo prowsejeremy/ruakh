@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { reveal } from '$lib/transitions';
   import { swipeStep } from '$lib/swipe';
@@ -24,8 +23,7 @@
 
   let active = $state(0);
 
-  const fadeMs = () =>
-    browser && matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 300;
+  const fadeMs = () => 300;
 
   function show(i: number) {
     if (!reflection || i === active || i < 0 || i >= reflection.body.length) return;
@@ -77,7 +75,7 @@
   });
 
   function toggleAttribution() {
-    if (!reflection) return;
+    if (!reflection || !copyright) return;
     if (attribution === 'author') attribution = 'copyright';
     else attribution = 'author';
   }
@@ -134,7 +132,7 @@
       <div class="attribution" onclick={toggleAttribution}>
         {#if attribution == 'author'}
           <small class="author" in:reveal|global={{y: 10}} out:reveal={{y: 10}}>{credit}</small>
-        {:else if attribution == 'copyright'}
+        {:else if copyright && attribution == 'copyright'}
           <small class="copyright" in:reveal|global={{ endOpacity: 0.5, y: 10 }} out:reveal={{y: 10}}>{copyright}</small>
         {/if}
       </div>
@@ -169,22 +167,23 @@
     inset: 0;
     display: flex;
     overflow-y: auto; /* a long part scrolls vertically inside its slide */
-  }
-  /* Blocks are injected via {@html}, so these selectors must be :global —
-     Svelte does not scope styles onto @html output. */
-  .slide :global(.block) {
-    white-space: pre-line; /* honors single line breaks inside a paragraph */
-    display: block;
-  }
-  .slide :global(.block + .block) {
-    margin-top: 1rem;
-  }
-  .slide :global(h2) {
-    font-size: 1.5rem;
-  }
-  .slide :global(h3) {
-    font-size: inherit;
-    font-weight: 700;
+
+    /* Blocks are injected via {@html}, so these selectors must be :global —
+       Svelte does not scope styles onto @html output. */
+    :global(.block) {
+      white-space: pre-line; /* honors single line breaks inside a paragraph */
+      display: block;
+    }
+    :global(.block + .block) {
+      margin-top: 1rem;
+    }
+    :global(h2) {
+      font-size: 1.5rem;
+    }
+    :global(h3) {
+      font-size: inherit;
+      font-weight: 700;
+    }
   }
 
   @keyframes block-fade-in {
@@ -205,26 +204,20 @@
     flex-direction: column;
     justify-content: center;
     margin: auto 0;
-  }
 
-  .reflection-content :global(p) {
-    font-size: var(--text-large);
+    /* :global — the paragraph is {@html} output (see .slide above). */
+    :global(p) {
+      font-size: var(--text-large);
+    }
   }
 
   /* Entering from the intro: content waits for the wordmark morph (600ms) to land. */
-  .intro-entrance .dots,
-  .intro-entrance .author,
-  .intro-entrance .copyright,
-  .intro-entrance .empty {
-    animation: block-fade-in 0.6s ease-out 600ms both;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .intro-entrance .dots,
-    .intro-entrance .author,
-    .intro-entrance .copyright,
-    .intro-entrance .empty {
-      animation-duration: 0s;
-      animation-delay: 0s;
+  .intro-entrance {
+    .dots,
+    .author,
+    .copyright,
+    .empty {
+      animation: block-fade-in 0.6s ease-out 600ms both;
     }
   }
   .dots {
@@ -244,19 +237,20 @@
     padding: 0;
     cursor: pointer;
     color: inherit;
-  }
-  .dot::before {
-    content: '';
-    width: 1rem;
-    height: 0.1rem;
-    /* border-radius: 999px; */
-    /* border: 1px solid currentColor; */
-    background: currentColor;
-    opacity: 0.2;
-  }
-  .dot.active::before {
-    /* background: currentColor; */
-    opacity: 0.7;
+
+    &::before {
+      content: '';
+      width: 1rem;
+      height: 0.1rem;
+      /* border-radius: 999px; */
+      /* border: 1px solid currentColor; */
+      background: currentColor;
+      opacity: 0.2;
+    }
+    &.active::before {
+      /* background: currentColor; */
+      opacity: 0.7;
+    }
   }
   .attribution {
     display: flex;
