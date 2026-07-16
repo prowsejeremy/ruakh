@@ -1,4 +1,4 @@
-import type { ContentBlock } from './markdown';
+import type { ContentBlock } from "./markdown";
 
 /** The client-facing shape of a reflection — exactly what routes load and screens render. */
 export type ReflectionView = {
@@ -8,4 +8,5 @@ export type ReflectionView = {
   body: ContentBlock[][];
   attribution: string | null;
   source: string | null;
+  copyright: string | null;
 };

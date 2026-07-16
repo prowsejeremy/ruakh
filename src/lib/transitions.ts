@@ -22,6 +22,8 @@ export interface RevealParams {
   easing?: (t: number) => number;
   /** When false the transition is skipped entirely (instant). */
   enabled?: boolean;
+  /** Opacity at the resting (fully-in) point; defaults to 1. */
+  endOpacity?: number;
 }
 
 interface StaggerItem {
@@ -91,6 +93,7 @@ export function reveal(
     index,
     easing = cubicOut,
     enabled = true,
+    endOpacity = 1,
   } = params;
   if (!enabled) return { duration: 0 };
 
@@ -115,7 +118,8 @@ export function reveal(
       duration,
       easing,
       // In rises from +y to rest; out continues from rest up to -y.
-      css: (t, u) => `opacity: ${t}; transform: translateY(${sign * u * y}px);`,
+      css: (t, u) =>
+        `opacity: ${t * endOpacity}; transform: translateY(${sign * u * y}px);`,
     };
   };
 }

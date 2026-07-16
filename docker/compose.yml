@@ -35,7 +35,7 @@ services:
       - ./certbot/www:/var/www/certbot:rw
 
   db:
-    image: postgres:16
+    image: postgres:16-alpine
     restart: always
     env_file:
       - .env.db

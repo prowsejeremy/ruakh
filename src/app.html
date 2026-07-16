@@ -13,18 +13,27 @@
       // config (it auto-hashes app.html inline scripts) — don't add a bare
       // script-src header at a proxy or this flash-prevention silently breaks.
       try {
-        var t = JSON.parse(localStorage.getItem('ruakh:theme'));
-        if (t && t.bg) {
-          var s = document.documentElement.style;
-          s.setProperty('--color-bg', t.bg);
-          s.setProperty('--color-accent', t.line);
-          s.setProperty('--color-ink', t.ink);
-          var ih = t.ink.replace('#', '');
-          if (ih.length === 3) ih = ih[0] + ih[0] + ih[1] + ih[1] + ih[2] + ih[2];
-          var in_ = parseInt(ih, 16);
-          s.setProperty('--color-ink-rgb', ((in_ >> 16) & 255) + ', ' + ((in_ >> 8) & 255) + ', ' + (in_ & 255));
-          var m = document.querySelector('meta[name="theme-color"]');
-          if (m) m.setAttribute('content', t.bg);
+        var s = document.documentElement.style;
+        var m = document.querySelector('meta[name="theme-color"]');
+        // The /admin area uses a fixed dark palette instead of the saved theme.
+        // Mirrors ADMIN_THEME in src/lib/themes.ts — keep the hex values in sync.
+        if (location.pathname.indexOf('/admin') === 0) {
+          s.setProperty('--color-bg', '#111111');
+          s.setProperty('--color-ink', '#f9f8f6');
+          s.setProperty('--color-ink-rgb', '249, 248, 246');
+          if (m) m.setAttribute('content', '#111111');
+        } else {
+          var t = JSON.parse(localStorage.getItem('ruakh:theme'));
+          if (t && t.bg) {
+            s.setProperty('--color-bg', t.bg);
+            s.setProperty('--color-accent', t.line);
+            s.setProperty('--color-ink', t.ink);
+            var ih = t.ink.replace('#', '');
+            if (ih.length === 3) ih = ih[0] + ih[0] + ih[1] + ih[1] + ih[2] + ih[2];
+            var in_ = parseInt(ih, 16);
+            s.setProperty('--color-ink-rgb', ((in_ >> 16) & 255) + ', ' + ((in_ >> 8) & 255) + ', ' + (in_ & 255));
+            if (m) m.setAttribute('content', t.bg);
+          }
         }
       } catch (e) {}
     </script>

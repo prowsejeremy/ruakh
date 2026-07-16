@@ -57,3 +57,14 @@ hr {
 a {
   color: inherit;
 }
+
+/* Text-selection highlight: the background's complementary hue (180° around the
+   wheel), keeping its saturation/lightness so it tracks whatever theme is live.
+   Relative color syntax needs Chrome 119+/Safari 16.4+/Firefox 128+; older
+   browsers just fall back to the native selection color. */
+::selection {
+  background-color: hsl(
+    from var(--color-accent) calc(h + 180) calc(s + 10) calc(l + 10)
+  );
+  color: var(--color-ink);
+}

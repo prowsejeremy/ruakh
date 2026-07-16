@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { reveal } from '$lib/transitions';
+  import { swipeStep } from '$lib/swipe';
   import { formatAttribution } from '$lib/format';
   import { blocksToHtml } from '$lib/markdown';
   import Actions from '$lib/components/Actions.svelte';
@@ -16,8 +17,10 @@
   // the reset effect) so later first-viewed parts don't inherit the delay.
   // svelte-ignore state_referenced_locally -- the initial value is exactly what we want
   let introEntrance = $state(fromIntro);
+  let attribution = $state<'author' | 'copyright' | null>('author');
 
   const credit = $derived(reflection ? formatAttribution(reflection.attribution, reflection.source) : null);
+  const copyright = $derived(reflection ? reflection.copyright : null);
 
   let active = $state(0);
 
@@ -30,21 +33,38 @@
     active = i;
   }
 
+  // Swipe is committed on pointerup with the whole gesture (distance + duration),
+  // so a slow drag — a lingering press or text selection — never flips slides.
+  // pointercancel is the Android fallback: Chrome can end the touch pointer
+  // stream (handing the gesture to the scroll compositor) before a usable
+  // pointerup arrives, so it re-runs the same check against the last pointermove
+  // position. Vertical-dominant gestures fall through to native `pan-y` scroll.
   let downX: number | null = null;
   let downY = 0;
+  let downT = 0;
+  let lastX = 0;
+  let lastY = 0;
   function onPointerDown(e: PointerEvent) {
-    downX = e.clientX;
-    downY = e.clientY;
+    downX = lastX = e.clientX;
+    downY = lastY = e.clientY;
+    downT = e.timeStamp;
+  }
+  function onPointerMove(e: PointerEvent) {
+    if (downX === null) return;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+  function commitSwipe(x: number, y: number, t: number) {
+    if (downX === null) return;
+    const step = swipeStep(x - downX, y - downY, t - downT);
+    downX = null;
+    if (step !== 0) show(active + step);
   }
   function onPointerUp(e: PointerEvent) {
-    if (downX === null) return;
-    const dx = e.clientX - downX;
-    const dy = e.clientY - downY;
-    downX = null;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(active + (dx < 0 ? 1 : -1));
+    commitSwipe(e.clientX, e.clientY, e.timeStamp);
   }
-  function onPointerCancel() {
-    downX = null;
+  function onPointerCancel(e: PointerEvent) {
+    commitSwipe(lastX, lastY, e.timeStamp);
   }
 
   // A different reflection (offline fallback, navigation) starts fresh.
@@ -55,6 +75,12 @@
     lastId = reflection?.id;
     active = 0;
   });
+
+  function toggleAttribution() {
+    if (!reflection) return;
+    if (attribution === 'author') attribution = 'copyright';
+    else attribution = 'author';
+  }
 
 </script>
 
@@ -72,6 +98,7 @@
       class="slider"
       role="presentation"
       onpointerdown={onPointerDown}
+      onpointermove={onPointerMove}
       onpointerup={onPointerUp}
       onpointercancel={onPointerCancel}
       in:reveal|global
@@ -103,7 +130,14 @@
       </div>
     {/if}
     {#if credit}
-      <small class="credit" in:reveal|global>{credit}</small>
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+      <div class="attribution" onclick={toggleAttribution}>
+        {#if attribution == 'author'}
+          <small class="author" in:reveal|global={{y: 10}} out:reveal={{y: 10}}>{credit}</small>
+        {:else if attribution == 'copyright'}
+          <small class="copyright" in:reveal|global={{ endOpacity: 0.5, y: 10 }} out:reveal={{y: 10}}>{copyright}</small>
+        {/if}
+      </div>
     {/if}
     <!-- Wrapper carries the intro-entrance fade; Actions itself stays free of
       intro coupling so it drops cleanly into other screens. -->
@@ -179,13 +213,15 @@
 
   /* Entering from the intro: content waits for the wordmark morph (600ms) to land. */
   .intro-entrance .dots,
-  .intro-entrance .credit,
+  .intro-entrance .author,
+  .intro-entrance .copyright,
   .intro-entrance .empty {
     animation: block-fade-in 0.6s ease-out 600ms both;
   }
   @media (prefers-reduced-motion: reduce) {
     .intro-entrance .dots,
-    .intro-entrance .credit,
+    .intro-entrance .author,
+    .intro-entrance .copyright,
     .intro-entrance .empty {
       animation-duration: 0s;
       animation-delay: 0s;
@@ -193,7 +229,7 @@
   }
   .dots {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 0.25rem;
     padding-block: 0.5rem;
   }
@@ -211,18 +247,37 @@
   }
   .dot::before {
     content: '';
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    border: 1px solid currentColor;
+    width: 1rem;
+    height: 0.1rem;
+    /* border-radius: 999px; */
+    /* border: 1px solid currentColor; */
+    background: currentColor;
+    opacity: 0.2;
   }
   .dot.active::before {
-    background: currentColor;
+    /* background: currentColor; */
+    opacity: 0.7;
   }
-  .credit {
+  .attribution {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: right;
+    position: relative;
+    width: 100%;
+    height: 3rem;
+    cursor: pointer;
+  }
+  .author {
     font-weight: 700;
-    padding-block: 2rem 1rem;
+    position: absolute;
+    right: 0;
+  }
+  .copyright {
+    font-size: 0.8rem;
+    position: absolute;
+    opacity: 0.5;
+    right: 0;
   }
   .empty {
     flex: 1;

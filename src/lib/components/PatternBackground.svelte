@@ -113,6 +113,7 @@
 </script>
 
 <div class="pattern-bg" style="background:{background}; z-index:{zIndex};">
+  <span class="background-texture"></span>
   <svg width="100%" height="100%" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">
     {#each lines as line, i (i)}
       <path
@@ -140,5 +141,17 @@
     display: block;
     width: 100%;
     height: 100%;
+  }
+  .background-texture {
+    background-image: url('/texture.jpg');
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.5;
   }
 </style>

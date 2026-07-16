@@ -1,8 +1,8 @@
-import { and, asc, eq } from 'drizzle-orm';
-import { db } from './index';
-import { reflections, type Reflection } from './schema';
-import { parseContent } from '$lib/markdown';
-import type { ReflectionView } from '$lib/types';
+import { and, asc, eq } from "drizzle-orm";
+import { db } from "./index";
+import { reflections, type Reflection } from "./schema";
+import { parseContent } from "$lib/markdown";
+import type { ReflectionView } from "$lib/types";
 
 /** All published reflections in a stable order (oldest first). */
 export async function getPublishedReflections(): Promise<Reflection[]> {
@@ -15,7 +15,9 @@ export async function getPublishedReflections(): Promise<Reflection[]> {
 
 /** A single published reflection, or null. Published-only so the public
  * /reflections/[id] route can't enumerate drafts via sequential ids. */
-export async function getPublishedReflectionById(id: number): Promise<Reflection | null> {
+export async function getPublishedReflectionById(
+  id: number,
+): Promise<Reflection | null> {
   const [reflection] = await db
     .select()
     .from(reflections)
@@ -30,6 +32,7 @@ export function toReflectionView(q: Reflection): ReflectionView {
     id: q.id,
     body: q.sections.map(parseContent),
     attribution: q.attribution,
-    source: q.source
+    source: q.source,
+    copyright: q.copyright,
   };
 }

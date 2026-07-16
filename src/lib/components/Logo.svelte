@@ -4,10 +4,8 @@
 
 <script lang="ts">
   let {
-    name,
     size = '2rem',
-    background,
-  }: { name: IconName; size?: string; color?: string } = $props();
+  }: { size?: string } = $props();
 </script>
 
 <span
