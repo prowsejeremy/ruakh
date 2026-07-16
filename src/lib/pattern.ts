@@ -149,11 +149,15 @@ export function buildFromParams(size: Size, p: LineParams): PatternLine {
 }
 
 // A valid line: two angles far enough apart that the chord sweeps across the
-// viewport (near-opposite points pass through the center).
+// viewport (near-opposite points pass through the center). The span is drawn
+// from a wide range around π so endpoints land anywhere from a quarter-circle
+// to near-opposite — the further the span sits from π, the more the chord
+// reads as a circular arc rather than a straight sweep. Candidates that stray
+// too far to cover the viewport are rejected below.
 function makeLine(size: Size, w: number, rng: Rng): PatternLine | null {
   for (let tries = 0; tries < 60; tries++) {
     const angA = rand(rng, 0, Math.PI * 2);
-    const angB = angA + rand(rng, Math.PI * 0.66, Math.PI * 1.34);
+    const angB = angA + rand(rng, Math.PI * 0.5, Math.PI * 1.5);
     const line = buildFromParams(size, { angA, angB, w, ...shapeParams(size, rng) });
     if (polyCoverage(size, line.pts) >= 0.25) return line;
   }
@@ -166,7 +170,7 @@ const clearanceFor = (size: Size, w1: number, w2: number) =>
 /** Generate a fresh arrangement: 1-2 viewport-sweeping lines that never touch. */
 export function generateLines(size: Size, rng: Rng = Math.random): PatternLine[] {
   const baseW = Math.max(60, Math.min(size.w, size.h) * 0.14);
-  const count = rng() < 0.45 ? 2 : 1;
+  const count = rng() < 0.6 ? 2 : 1;
   const next: PatternLine[] = [];
 
   const w1 = rand(rng, baseW * 0.85, baseW * 1.2);

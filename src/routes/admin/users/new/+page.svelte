@@ -74,10 +74,10 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-  }
 
-  form .panel-link-btn {
-    align-self: flex-start;
-    margin-top: -0.75rem;
+    .panel-link-btn {
+      align-self: flex-start;
+      margin-top: -0.75rem;
+    }
   }
 </style>

@@ -72,26 +72,26 @@
     align-self: flex-end;
     margin-top: auto;
     width: 100%;
-  }
-  .actions button {
-    background: none;
-    border: none;
-    font: inherit;
-    cursor: pointer;
-    padding: 0;
-  }
-  .actions button,
-  .actions a {
-    display: inline-flex;
-    color: inherit;
-  }
 
-  /* Fill the heart while the reflection is saved. */
-  .actions button :global(path) {
-    transition: fill 300ms var(--transition-timing);
-    fill: transparent;
-  }
-  .actions button[aria-pressed='true'] :global(path) {
-    fill: currentColor;
+    button {
+      background: none;
+      border: none;
+      font: inherit;
+      cursor: pointer;
+      padding: 0;
+
+      /* Fill the heart while the reflection is saved. Icon exposes `fill` as
+         the --icon-fill hook (see Icon.svelte), so we set a value instead of
+         reaching into its internals with :global(path). */
+      &[aria-pressed='true'] {
+        --icon-fill: currentColor;
+      }
+    }
+
+    button,
+    a {
+      display: inline-flex;
+      color: inherit;
+    }
   }
 </style>

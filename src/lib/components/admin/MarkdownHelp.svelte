@@ -56,6 +56,11 @@
     gap: 0.5rem 1rem;
     align-items: baseline;
     margin: 0;
+
+    @media (max-width: 30rem) {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
   }
   dt,
   dd {
@@ -77,30 +82,29 @@
     opacity: 0.7;
     font-size: 0.85em;
   }
-  /* Tame the rendered preview so it reads as a sample, not page content. */
-  dd :global(h1) {
-    font-size: 1.1rem;
-  }
-  dd :global(h2) {
-    font-size: 1rem;
-  }
-  dd :global(:first-child) {
-    margin-top: 0;
-  }
-  dd :global(:last-child) {
-    margin-bottom: 0;
-  }
-  dd :global(hr) {
-    border: none;
-    border-top: 1px solid rgba(var(--color-ink-rgb), 0.4);
-    margin: 0.4rem 0;
-  }
-  @media (max-width: 30rem) {
-    .md-help-grid {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
+  dd {
+    /* Tame the rendered preview so it reads as a sample, not page content.
+       :global is necessary — the preview is {@html} output, which Svelte
+       does not scope. */
+    :global(h1) {
+      font-size: 1.1rem;
     }
-    dd {
+    :global(h2) {
+      font-size: 1rem;
+    }
+    :global(:first-child) {
+      margin-top: 0;
+    }
+    :global(:last-child) {
+      margin-bottom: 0;
+    }
+    :global(hr) {
+      border: none;
+      border-top: 1px solid rgba(var(--color-ink-rgb), 0.4);
+      margin: 0.4rem 0;
+    }
+
+    @media (max-width: 30rem) {
       margin-bottom: 0.5rem;
     }
   }

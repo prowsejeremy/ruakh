@@ -35,17 +35,31 @@
   .icon {
     display: inline-block;
     flex: none;
-  }
-  .icon :global(svg) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    fill: transparent;
-    transition: fill 300ms var(--transition-timing);
-  }
-  /* Each icon's bounding circle stays invisible unless a background
-     color is passed in. */
-  .icon :global(.icon-bg) {
-    fill: var(--icon-bg, transparent);
+
+    /* :global is necessary here — the SVG is injected via {@html}, so Svelte
+       can't scope styles onto it. */
+    :global(svg) {
+      display: block;
+      width: 100%;
+      height: 100%;
+      fill: transparent;
+      transition: fill 300ms var(--transition-timing);
+
+      :global {
+        /* The drawn strokes. `fill` is an overridable hook (default: unfilled
+       outline) so a parent can fill the icon by setting --icon-fill, mirroring
+       --icon-bg for the bounding circle. */
+        path {
+          fill: var(--icon-fill, transparent);
+          transition: fill 300ms var(--transition-timing);
+        }
+
+        /* Each icon's bounding circle stays invisible unless a background
+        color is passed in. */
+        .icon-bg {
+          fill: var(--icon-bg, transparent);
+        }
+      }
+    }
   }
 </style>

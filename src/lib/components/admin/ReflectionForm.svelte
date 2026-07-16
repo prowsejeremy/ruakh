@@ -96,8 +96,9 @@
     align-items: flex-end;
     gap: 0.35rem;
     margin-bottom: 0.75rem;
-  }
-  .section-row textarea {
-    width: 100%;
+
+    textarea {
+      width: 100%;
+    }
   }
 </style>
