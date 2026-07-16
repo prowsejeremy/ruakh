@@ -5,9 +5,9 @@ import { db } from '$lib/server/db/index';
 import { admins } from '$lib/server/db/schema';
 import { invalidateSession, SESSION_COOKIE } from '$lib/server/auth/session';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
   const rows = await db.select().from(admins).orderBy(asc(admins.createdAt), asc(admins.id));
-  return { admins: rows };
+  return { admins: rows, currentId: locals.admin?.id };
 };
 
 export const actions: Actions = {

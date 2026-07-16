@@ -22,10 +22,17 @@
   <div class="panel-list">
     {#each data.admins as admin (admin.id)}
       <div class="panel-card user-card">
-        <div>
-          <div class="panel-card-title">{admin.email}</div>
-          <div class="panel-card-meta">{admin.createdAt.toISOString().slice(0, 10)}</div>
-        </div>
+        {#if admin.id === data.currentId}
+          <a class="user-card-edit" href="/admin/users/{admin.id}">
+            <div class="panel-card-title">{admin.email}</div>
+            <div class="panel-card-meta">{admin.createdAt.toISOString().slice(0, 10)} · you — edit</div>
+          </a>
+        {:else}
+          <div>
+            <div class="panel-card-title">{admin.email}</div>
+            <div class="panel-card-meta">{admin.createdAt.toISOString().slice(0, 10)}</div>
+          </div>
+        {/if}
         <form
           method="POST"
           action="?/delete"

@@ -147,6 +147,7 @@ p.panel-blurb {
 
 .panel-field input[type="text"],
 .panel-field input[type="email"],
+.panel-field input[type="password"],
 .panel-field textarea {
   font: inherit;
   font-size: var(--text-body);
@@ -156,6 +157,11 @@ p.panel-blurb {
   padding: 0.6rem 0.9rem;
   color: inherit;
   resize: vertical;
+
+  &:focus {
+    outline: none;
+    border: 1px solid #10e260;
+  }
 }
 
 .panel-field input[type="color"] {

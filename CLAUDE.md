@@ -36,6 +36,17 @@ Postgres via **Drizzle ORM** · `idb` (IndexedDB) · `web-push` · Vitest.
 - **`hooks.server.ts` is the central authz chokepoint** — it must guard all `/admin`
   non-GET requests, because SvelteKit form actions run *before* layout loads (the
   `/admin` layout guard alone is insufficient).
+- **Admin account self-edit is ownership-guarded per action.** The chokepoint
+  only proves *authentication*; `/admin/users/[id]` additionally rejects editing
+  anyone else's account — its `load` and both actions (`updateEmail`,
+  `changePassword`) compare `params.id` to `locals.admin.id` and `error(403)`
+  otherwise. `changePassword` re-verifies the current password
+  (`verifyPassword`) and leaves the current session valid; email changes need
+  only the authenticated session. Create-user requires an operator-supplied
+  password (min 12 chars); the "Generate" button fills a 24-char one client-side
+  and the reveal screen shows **only** for generated passwords (a typed one is
+  already known). Password length min (12) is enforced server-side, not just via
+  the input's `minlength`.
 - **Push scheduler is in-process:** a 5-min `setInterval` in `hooks.server.ts` drives
   `sendDueReminders()` + session GC (no cron/queue). `lastSentOn` is a restart-safe
   once-a-day guard with late catch-up; dead endpoints self-prune; timer is `unref()`'d
@@ -74,7 +85,7 @@ mutations are SvelteKit **form actions** (named), authorized by `hooks.server.ts
 | `/admin/reflections`, `.../new`, `.../[id]` | list · `create` · `update` + `delete` |
 | `/admin/pages`, `.../new`, `.../[uri]` | list · `create` · `update` + `delete` |
 | `/admin/themes`, `.../new`, `.../[id]` | list · `create` · `update` + `delete` |
-| `/admin/users`, `.../new` | list + `delete` · `create` |
+| `/admin/users`, `.../new`, `.../[id]` | list + `delete` · `create` · **self-edit** (`updateEmail` + `changePassword`) |
 
 API endpoints (`+server.ts`):
 - `GET /api/content/bundle` — offline content bundle (ETag/304, above).
@@ -102,6 +113,7 @@ Shared library (`src/lib/`):
 | `client/content.ts` | public IndexedDB `ruakh-content`: bundle cache + conditional refresh |
 | `client/push.ts` | browser push plumbing (`enableReminder`/`disableReminder`/…); never throws |
 | `client/install.svelte.ts` | `installState` — captures `beforeinstallprompt` early |
+| `client/password.ts` | `randomPassword(len=24)` — `A–Z a–z 0–9` generator for the admin create-user "Generate" button (client-side) |
 | `client/intro.svelte.ts` | `intro.done` — shared splash-complete flag |
 
 Server (`src/lib/server/`):
@@ -143,6 +155,13 @@ Deploy/runtime: the production image runs [docker/migrate.mjs](docker/migrate.mj
 start (applies pending migrations with runtime deps only — no drizzle-kit/tsx),
 then boots. See [docker/](docker/) (`compose.yml`, `compose-dev.yml`, `Dockerfile`)
 and [deploy/](deploy/) (self-host scripts).
+
+## Git
+
+**Never run git-writing commands** (`git commit`, `git add`, `git push`, `git
+merge`, `git rebase`, etc.) in this project — the user handles all git operations
+themselves. Make and edit files freely; leave staging and committing to the user.
+Read-only git commands (`git status`, `git diff`, `git log`, `git show`) are fine.
 
 ## Process right-sizing
 
