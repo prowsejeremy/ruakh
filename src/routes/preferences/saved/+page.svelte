@@ -1,5 +1,4 @@
 <script lang="ts">
-  import BackButton from '$lib/components/BackButton.svelte';
   import { reveal } from '$lib/transitions';
   import { browser } from '$app/environment';
   import { formatAttribution } from '$lib/format';
@@ -45,41 +44,30 @@
   }
 </script>
 
-<svelte:head>
-  <title>saved reflections — preferences — ruakh</title>
-</svelte:head>
-
-<main class="panel-main">
-  <header class="panel-header">
-    <BackButton background="var(--color-accent)" />
-    <h1 class="panel-title">saved reflections</h1>
-  </header>
-
-  {#if favorites.length > 0}
-    <div class="panel-search-wrap">
-      <input class="panel-search" type="text" placeholder="Search..." bind:value={query} />
-      <span class="panel-search-icon"><Icon name="search" size="1.9rem" /></span>
-    </div>
-  {/if}
-
-  <div class="panel-list">
-    {#each filtered as fav (fav.id)}
-      <div class="panel-card card-linked" in:reveal|global>
-        <a class="card-link" href="/reflections/{fav.id}">
-          <div class="panel-card-title">{preview(fav.body.map(blocksToText).join(' '))}</div>
-        </a>
-        <div class="panel-card-meta meta-row">
-          <span>{formatAttribution(fav.attribution, fav.source) ?? ''}</span>
-          <button type="button" class="panel-link-btn" onclick={() => unsave(fav.id)}>
-            remove
-          </button>
-        </div>
-      </div>
-    {:else}
-      <p class="panel-blurb">{loaded ? 'Nothing saved yet.' : 'Loading…'}</p>
-    {/each}
+{#if favorites.length > 0}
+  <div class="panel-search-wrap" in:reveal|global out:reveal|global>
+    <input class="panel-search" type="text" placeholder="Search..." bind:value={query} />
+    <span class="panel-search-icon"><Icon name="search" size="1.9rem" /></span>
   </div>
-</main>
+{/if}
+
+<div class="panel-list" out:reveal|global>
+  {#each filtered as fav (fav.id)}
+    <div class="panel-card card-linked" in:reveal|global>
+      <a class="card-link" href="/reflections/{fav.id}">
+        <div class="panel-card-title">{preview(fav.body.map(blocksToText).join(' '))}</div>
+      </a>
+      <div class="panel-card-meta meta-row">
+        <span>{formatAttribution(fav.attribution, fav.source) ?? ''}</span>
+        <button type="button" class="panel-link-btn" onclick={() => unsave(fav.id)}>
+          remove
+        </button>
+      </div>
+    </div>
+  {:else}
+    <p class="panel-blurb" in:reveal|global>{loaded ? 'Nothing saved yet.' : 'Loading…'}</p>
+  {/each}
+</div>
 
 <style>
   .meta-row {

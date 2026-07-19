@@ -15,31 +15,30 @@
       try {
         var s = document.documentElement.style;
         var m = document.querySelector('meta[name="theme-color"]');
+        // hex (#rgb or #rrggbb) -> "r, g, b" — mirrors hexToRgb in client/theme.ts.
+        var toRgb = function (hex) {
+          var h = hex.replace("#", "");
+          if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+          var n = parseInt(h, 16);
+          return ((n >> 16) & 255) + ", " + ((n >> 8) & 255) + ", " + (n & 255);
+        };
+        // Set --color-<name> and its --color-<name>-rgb companion together.
+        var setColor = function (name, hex) {
+          s.setProperty("--color-" + name, hex);
+          s.setProperty("--color-" + name + "-rgb", toRgb(hex));
+        };
         // The /admin area uses a fixed dark palette instead of the saved theme.
         // Mirrors ADMIN_THEME in src/lib/themes.ts — keep the hex values in sync.
         if (location.pathname.indexOf("/admin") === 0) {
-          s.setProperty("--color-bg", "#111111");
-          s.setProperty("--color-ink", "#f9f8f6");
-          s.setProperty("--color-ink-rgb", "249, 248, 246");
+          setColor("bg", "#111111");
+          setColor("ink", "#f9f8f6");
           if (m) m.setAttribute("content", "#111111");
         } else {
           var t = JSON.parse(localStorage.getItem("ruakh:theme"));
           if (t && t.bg) {
-            s.setProperty("--color-bg", t.bg);
-            s.setProperty("--color-accent", t.line);
-            s.setProperty("--color-ink", t.ink);
-            var ih = t.ink.replace("#", "");
-            if (ih.length === 3)
-              ih = ih[0] + ih[0] + ih[1] + ih[1] + ih[2] + ih[2];
-            var in_ = parseInt(ih, 16);
-            s.setProperty(
-              "--color-ink-rgb",
-              ((in_ >> 16) & 255) +
-                ", " +
-                ((in_ >> 8) & 255) +
-                ", " +
-                (in_ & 255),
-            );
+            setColor("bg", t.bg);
+            setColor("accent", t.line);
+            setColor("ink", t.ink);
             if (m) m.setAttribute("content", t.bg);
           }
         }

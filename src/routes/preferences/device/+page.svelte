@@ -1,5 +1,4 @@
 <script lang="ts">
-  import BackButton from '$lib/components/BackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
   import { browser } from '$app/environment';
   import { toUtcMinute } from '$lib/push-time';
@@ -108,63 +107,52 @@
   }
 </script>
 
-<svelte:head>
-  <title>your device — preferences — ruakh</title>
-</svelte:head>
-
-<main class="panel-main">
-  <header class="panel-header">
-    <BackButton background="var(--color-accent)" />
-    <h1 class="panel-title">your device</h1>
-  </header>
-
-  <section in:reveal|global>
-    <div class="row">
-      <label for="daily-reminder">
-        <h2>Daily reminder;</h2>
-      </label>
-      {#if supported}
-        <Toggle
-          id="daily-reminder"
-          checked={enabled}
-          onchange={toggleReminders}
-          disabled={busy}
-          label="Daily reminder"
-        />
-      {/if}
-    </div>
+<section in:reveal|global out:reveal|global>
+  <div class="row">
+    <label for="daily-reminder">
+      <h2>Daily reminder;</h2>
+    </label>
     {#if supported}
-      <p class="panel-note">
-        One gentle nudge a day. Turning it off removes your subscription from our server
-        immediately — nothing about you is stored, only an anonymous delivery address.
-      </p>
-      {#if enabled}
-        <label>
-          <input type="time" bind:value={time} onchange={changeTime} step="300" />
-        </label>
-      {/if}
-      {#if error}<p class="panel-note panel-error">{error}</p>{/if}
-    {:else}
-      <p class="panel-note">
-        Notifications aren't available in this browser. On iPhone/iPad, add ruakh to your Home
-        Screen first (Share &rarr; Add to Home Screen), then return here.
-      </p>
+      <Toggle
+        id="daily-reminder"
+        checked={enabled}
+        onchange={toggleReminders}
+        disabled={busy}
+        label="Daily reminder"
+      />
     {/if}
-  </section>
-
-  <section in:reveal|global>
-    <h2>Your device;</h2>
+  </div>
+  {#if supported}
     <p class="panel-note">
-      Everything personal — saved reflections, your history, preferences — lives only on this device.
+      One gentle nudge a day. Turning it off removes your subscription from our server
+      immediately — nothing about you is stored, only an anonymous delivery address.
     </p>
-    <p class="row">
-      <button type="button" class="panel-link-btn" onclick={eraseAll} disabled={busy}>
-        erase everything on this device
-      </button>
+    {#if enabled}
+      <label>
+        <input type="time" bind:value={time} onchange={changeTime} step="300" />
+      </label>
+    {/if}
+    {#if error}<p class="panel-note panel-error">{error}</p>{/if}
+  {:else}
+    <p class="panel-note">
+      Notifications aren't available in this browser. On iPhone/iPad, add ruakh to your Home
+      Screen first (Share &rarr; Add to Home Screen), then return here.
     </p>
-    {#if erased}<p class="panel-note">Done. This device holds nothing now.</p>{/if}
-  </section>
-</main>
+  {/if}
+</section>
+
+<section in:reveal|global out:reveal|global>
+  <h2>Your device;</h2>
+  <p class="panel-note">
+    Everything personal — saved reflections, your history, preferences — lives only on this device.
+  </p>
+  <p class="row">
+    <button type="button" class="panel-link-btn" onclick={eraseAll} disabled={busy}>
+      erase everything on this device
+    </button>
+  </p>
+  {#if erased}<p class="panel-note">Done. This device holds nothing now.</p>{/if}
+</section>
 
 <style>
   section {

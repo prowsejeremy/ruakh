@@ -3,8 +3,11 @@
   --color-bg: #f7a31a; /* orange field (PatternBackground paints the viewport; this is the fallback) */
   --color-accent: #f5350b; /* red-orange flowing lines */
   --color-ink: #131313; /* near-black text */
-  --color-ink-rgb:
-    19, 19, 19; /* --color-ink as "r, g, b" for rgba(var(--color-ink-rgb), a) */
+  /* Each color's "r, g, b" companion for rgba(var(--color-*-rgb), a). Kept in
+     sync by theme.ts applyTheme + app.html's pre-paint script. */
+  --color-bg-rgb: 247, 163, 26;
+  --color-accent-rgb: 245, 53, 11;
+  --color-ink-rgb: 19, 19, 19;
 
   --font-display: "PT Serif", Georgia, "Times New Roman", serif;
 
@@ -27,6 +30,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  color: inherit;
 }
 
 html,
@@ -52,10 +56,6 @@ hr {
   border: none;
   border-top: 1px solid rgba(var(--color-ink-rgb), 0.2);
   margin: 4rem 0;
-}
-
-a {
-  color: inherit;
 }
 
 ::selection {

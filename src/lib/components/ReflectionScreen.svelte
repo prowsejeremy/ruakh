@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/state';
   import { fade } from 'svelte/transition';
   import { reveal } from '$lib/transitions';
   import { swipeStep } from '$lib/swipe';
@@ -100,6 +99,7 @@
       onpointerup={onPointerUp}
       onpointercancel={onPointerCancel}
       in:reveal|global
+      out:reveal|global
     >
       {#key `${reflection.id}:${active}`}
         <blockquote class="slide" transition:fade={{ duration: fadeMs() }}>
@@ -114,7 +114,7 @@
       {/key}
     </div>
     {#if reflection.body.length > 1}
-      <div class="dots" role="group" aria-label="reflection parts" in:reveal|global>
+      <div class="dots" role="group" aria-label="reflection parts" in:reveal|global out:reveal|global>
         {#each reflection.body as _, i (i)}
           <button
             type="button"
@@ -129,7 +129,7 @@
     {/if}
     {#if credit}
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-      <div class="attribution" onclick={toggleAttribution}>
+      <div class="attribution" onclick={toggleAttribution} in:reveal|global out:reveal|global>
         {#if attribution == 'author'}
           <small class="author" in:reveal|global={{y: 10}} out:reveal={{y: 10}}>{credit}</small>
         {:else if copyright && attribution == 'copyright'}
@@ -139,9 +139,9 @@
     {/if}
     <!-- Wrapper carries the intro-entrance fade; Actions itself stays free of
       intro coupling so it drops cleanly into other screens. -->
-    <Actions save={reflection} preferences exitRoute={page.url.pathname} />
+    <Actions save={reflection} />
   {:else}
-    <p class="empty" in:reveal|global>No reflection is available yet.</p>
+    <p class="empty" in:reveal|global out:reveal|global>No reflection is available yet.</p>
   {/if}
 </section>
 

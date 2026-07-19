@@ -1,6 +1,5 @@
 <script lang="ts">
   import { MARKDOWN_EXAMPLES, examplePreview } from '$lib/markdown-help';
-
   let open = $state(false);
   const panelId = 'md-help-panel';
 </script>
@@ -12,7 +11,12 @@
   aria-controls={panelId}
   onclick={() => (open = !open)}
 >
-  {open ? 'hide formatting help' : 'formatting help'}
+  <span class="info-icon">i</span>
+  {#if open}
+    hide formatting help
+  {:else}
+    formatting help
+  {/if}
 </button>
 
 {#if open}
@@ -34,6 +38,19 @@
 {/if}
 
 <style>
+  .info-icon {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    border-radius: 50%;
+    background-color: rgba(var(--color-ink-rgb), 0.15);
+    color: rgba(var(--color-ink-rgb), 0.85);
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-decoration: none !important;
+  }
   /* Pushes the trigger to the right of the field title in .panel-field-head. */
   .md-help-link {
     margin-left: auto;
@@ -45,6 +62,7 @@
     border-radius: 0.5rem;
     padding: 0.75rem 0.9rem;
     font-size: var(--text-small);
+    margin-bottom: 1rem;
   }
   .md-help-intro {
     opacity: 0.85;
@@ -52,15 +70,10 @@
   }
   .md-help-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.5rem 1rem;
     align-items: baseline;
     margin: 0;
-
-    @media (max-width: 30rem) {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
-    }
   }
   dt,
   dd {

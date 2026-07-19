@@ -129,6 +129,31 @@ function flush() {
   inn.forEach((e) => (e.handoff = handoff));
 }
 
+/**
+ * Staggered reveal usable as an `in:` / `out:` transition.
+ *
+ * ## Usage convention (avoids the "new page stacks at the bottom" bug)
+ *
+ * During a SvelteKit page swap the outgoing and incoming pages briefly share
+ * normal document flow, so incoming content lays out *below* the still-leaving
+ * content. This transition hides that by holding the incoming batch back
+ * (`handoff`) until the outgoing batch clears — but that only works if every
+ * screen follows the same rule. When adding reveals to a page, classify each
+ * top-level element:
+ *
+ * - **Standalone block** (a lone section, a search box) → `in:reveal|global
+ *   out:reveal|global` (both directions).
+ * - **Container whose children stagger** (a nav, list, or grid) → the container
+ *   carries `out:reveal|global` only; each repeated child carries
+ *   `in:reveal|global` only. (Putting `in` on both double-animates.)
+ * - **Empty-state placeholder** shown in a container's `{:else}` → `in:reveal|global`.
+ *
+ * The invariant that prevents stacking: every incoming top-level element has an
+ * `in` (so it respects the handoff), and every outgoing container has an `out`
+ * (so there is an out-span for the next page's `in` batch to wait on). A shared
+ * layout that owns a single persistent frame (see `routes/preferences`) is the
+ * other half — a persistent wrapper can never stack behind an outgoing page.
+ */
 export function reveal(
   node: Element,
   params: RevealParams = {},

@@ -4,7 +4,7 @@
     fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"
     stroke-miterlimit="1.5">
         <g>
-            <circle class="icon-bg" cx="75" cy="75" r="75" fill="none"/>
+            <circle class="icon-bg" cx="75" cy="75" r="75"/>
             <path d="M88.19116,41.56898L54.89386,74.86627L88.45861,108.43102" fill="none" stroke="currentColor" stroke-width="6"/>
         </g>
 </svg>

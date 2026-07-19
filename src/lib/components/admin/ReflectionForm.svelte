@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import Icon from '$lib/components/Icon.svelte';
   import MarkdownHelp from '$lib/components/admin/MarkdownHelp.svelte';
+  import Toggle from '$lib/components/Toggle.svelte';
   
   type Initial = {
     sections: string[];
@@ -28,7 +29,9 @@
   }
 
   function removeSection(i: number) {
-    sections = sections.filter((_, idx) => idx !== i);
+    if (confirm('Are you sure you want to remove this section?')) {
+      sections = sections.filter((_, idx) => idx !== i);
+    }
   }
 </script>
 
@@ -70,8 +73,8 @@
   </label>
 
   <label class="panel-checkbox">
-    <input type="checkbox" name="isPublished" bind:checked={isPublished} />
-    published
+    Published
+    <Toggle checked={isPublished} onchange={() => isPublished = !isPublished} label="Published" id="isPublished" />
   </label>
 
   {#if error}<p class="panel-error">{error}</p>{/if}
@@ -100,5 +103,11 @@
     textarea {
       width: 100%;
     }
+  }
+  .panel-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 </style>

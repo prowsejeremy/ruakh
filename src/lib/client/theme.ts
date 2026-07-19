@@ -30,7 +30,9 @@ export function loadTheme(): Theme {
 export function applyTheme(theme: Theme): void {
   const s = document.documentElement.style;
   s.setProperty('--color-bg', theme.bg);
+  s.setProperty('--color-bg-rgb', hexToRgb(theme.bg));
   s.setProperty('--color-accent', theme.line);
+  s.setProperty('--color-accent-rgb', hexToRgb(theme.line));
   s.setProperty('--color-ink', theme.ink);
   s.setProperty('--color-ink-rgb', hexToRgb(theme.ink));
   const meta = document.querySelector('meta[name="theme-color"]');

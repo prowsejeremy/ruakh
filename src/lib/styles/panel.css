@@ -157,6 +157,7 @@ p.panel-blurb {
   padding: 0.6rem 0.9rem;
   color: inherit;
   resize: vertical;
+  transition: border 600ms var(--transition-timing);
 
   &:focus {
     outline: none;
@@ -270,6 +271,5 @@ p.panel-blurb {
 }
 
 .panel-swatch.active .panel-swatch-preview {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 2px;
+  border: 2px solid var(--color-ink);
 }

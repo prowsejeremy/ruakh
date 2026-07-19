@@ -1,23 +1,25 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { page } from '$app/state';
   import { addFavorite, removeFavorite, isFavorite } from '$lib/client/storage';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon, {type IconName } from '$lib/components/Icon.svelte';
   import { reveal } from '$lib/transitions';
   import type { ReflectionView } from '$lib/types';
 
-  // Each action is opt-in. `save` carries the reflection to favorite: passing
-  // it both enables the heart button and feeds the favorite logic below.
-  // `preferences` is a plain toggle for the settings link.
-  // `exitRoute` is threaded to the preferences page (via the `exit` query
-  // param) so its close button returns here; the page defaults to `/` when unset.
-  let {
-    save = null,
-    preferences = false,
-    exitRoute = null,
-  }: { save?: ReflectionView | null; preferences?: boolean; exitRoute?: string | null } = $props();
+  type NavLinkType = { href: string; label: string; icon: IconName };
 
+  // `save` carries the reflection to favorite: passing it both enables the
+  // heart button and feeds the favorite logic below.
+  let { save = null }: { save?: ReflectionView | null } = $props();
+
+  const currentRoute = page.url.pathname;
+
+  // Actions only ever renders on the page you'd leave to open preferences
+  // (never on a preferences page itself), so the current pathname is the
+  // exit target. It's threaded through the `exit` query param so the
+  // preferences close button returns here; that page falls back to `/`.
   const preferencesHref = $derived(
-    exitRoute ? `/preferences?exit=${encodeURIComponent(exitRoute)}` : '/preferences',
+    `/preferences?exit=${encodeURIComponent(page.url.pathname)}`,
   );
 
   let saved = $state(false);
@@ -49,24 +51,39 @@
       // Storage unavailable (private browsing etc.): leave state unchanged.
     }
   }
+
+  const navLinks = $derived.by((): NavLinkType[] => [
+    { href: '/', label: 'home', icon: 'home' },
+    { href: '/breathe', label: 'breathe', icon: 'breathe' },
+    { href: preferencesHref, label: 'preferences', icon: 'preferences' },
+  ]);
 </script>
 
-<div class="actions" in:reveal|global>
-  {#if save}
-    <button type="button" aria-pressed={saved} aria-label={saved ? 'saved' : 'save'} onclick={toggleSave}>
-      <Icon name="heart" size="2rem" />
+{#snippet NavLink({href, label, icon}: { href: string; label: string; icon: IconName; })}
+  <a href={href} aria-label={label} class={icon}>
+    <Icon name={icon} size="2rem" background={currentRoute === href ? 'rgba(var(--color-ink-rgb), 0.2)' : 'transparent'} />
+  </a>
+{/snippet}
+
+<div class="actions" in:reveal|global out:reveal|global>
+  <!-- Reflection save button -->
+  {#if save && save.id}
+    <button type="button" aria-label={saved ? 'saved' : 'save'} onclick={toggleSave} class="save">
+      <Icon name="heart" fill={saved ? 'currentColor' : 'transparent'} size="2rem" />
     </button>
   {/if}
-  {#if preferences}
-    <a href={preferencesHref} aria-label="preferences">
-      <Icon name="preferences" size="2rem" />
-    </a>
-  {/if}
+  
+  {#each navLinks as { href, label, icon } (href)}
+    {@render NavLink({ href, label, icon })}
+  {/each}
 </div>
 
 <style>
   .actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    grid-template-areas: 
+      "save home breathe preferences";
     justify-content: space-between;
     font-size: var(--text-small);
     align-self: flex-end;
@@ -79,13 +96,22 @@
       font: inherit;
       cursor: pointer;
       padding: 0;
+    }
 
-      /* Fill the heart while the reflection is saved. Icon exposes `fill` as
-         the --icon-fill hook (see Icon.svelte), so we set a value instead of
-         reaching into its internals with :global(path). */
-      &[aria-pressed='true'] {
-        --icon-fill: currentColor;
-      }
+    .save {
+      grid-area: save;
+    }
+
+    .home {
+      grid-area: home;
+    }
+
+    .breathe {
+      grid-area: breathe;
+    }
+
+    .preferences {
+      grid-area: preferences;
     }
 
     button,

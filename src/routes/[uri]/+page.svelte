@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { page } from '$app/state';
   import Actions from '$lib/components/Actions.svelte';
   import { blocksToHtml } from '$lib/markdown';
+  import { reveal } from '$lib/transitions';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -13,9 +13,11 @@
 
 <main>
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- text is escaped in blocksToHtml -->
-  {@html blocksToHtml(data.blocks)}
+  <section class="content" in:reveal|global out:reveal|global>
+    {@html blocksToHtml(data.blocks)}
+  </section>
 
-  <Actions preferences exitRoute={page.url.pathname} />
+  <Actions />
 </main>
 
 <style>

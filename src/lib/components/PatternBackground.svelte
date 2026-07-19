@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import {reveal} from '$lib/transitions';
+  import { patternBackground } from '$lib/client/background.svelte';
   import {
     generateLines,
     rescaleLines,
@@ -81,7 +82,16 @@
 
 <div class="pattern-bg" style="background:{background}; z-index:{zIndex};">
   <!-- <span class="background-texture"></span> -->
-  <svg width="100%" height="100%" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">
+  <!-- Only the line layer fades — the parent keeps painting the viewport bg.
+       Any screen can hide the lines via patternBackground.visible. -->
+  <svg
+    class="lines"
+    class:hidden={!patternBackground.visible}
+    width="100%"
+    height="100%"
+    viewBox="0 0 {W} {H}"
+    preserveAspectRatio="xMidYMid slice"
+  >
     {#each lines as line, i (i)}
       <path
         d={line.d}
@@ -110,6 +120,15 @@
       width: 100%;
       height: 100%;
     }
+  }
+
+  /* Cross-fade the lines when a screen toggles patternBackground.visible.
+     Independent of the one-time per-path draw-in (in:reveal). */
+  .lines {
+    transition: opacity 600ms var(--transition-timing) 300ms;
+  }
+  .lines.hidden {
+    opacity: 0;
   }
   /* .background-texture {
     background-image: url('/texture.jpg');

@@ -9,8 +9,10 @@
   import heart from '$lib/assets/icons/heart.svg?raw';
   import preferences from '$lib/assets/icons/preferences.svg?raw';
   import search from '$lib/assets/icons/search.svg?raw';
+  import home from '$lib/assets/icons/home.svg?raw';
+  import breathe from '$lib/assets/icons/breathe.svg?raw';
 
-  const icons = { add, back, close, forward, heart, preferences, search };
+  const icons = { add, back, close, forward, heart, preferences, search, home, breathe };
   export type IconName = keyof typeof icons;
 </script>
 
@@ -19,8 +21,10 @@
     name,
     className = '',
     size = '1.5em',
+    color = 'currentColor',
+    fill = 'transparent',
     background,
-  }: { name: IconName; size?: string; background?: string, className?: string } = $props();
+  }: { name: IconName; size?: string; background?: string; color?: string; fill?: string; className?: string } = $props();
 </script>
 
 <span
@@ -28,6 +32,8 @@
   style:width={size}
   style:height={size}
   style:--icon-bg={background}
+  style:--icon-fill={fill}
+  style:--icon-color={color}
   aria-hidden="true">{@html icons[name]}</span
 >
 
@@ -47,11 +53,12 @@
 
       :global {
         /* The drawn strokes. `fill` is an overridable hook (default: unfilled
-       outline) so a parent can fill the icon by setting --icon-fill, mirroring
+       outline) so a parent can fill the icon by setting --icon-color, mirroring
        --icon-bg for the bounding circle. */
         path {
-          fill: var(--icon-fill, transparent);
           transition: fill 300ms var(--transition-timing);
+          stroke: var(--icon-color, currentColor);
+          fill: var(--icon-fill, transparent);
         }
 
         /* Each icon's bounding circle stays invisible unless a background

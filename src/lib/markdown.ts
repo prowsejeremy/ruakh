@@ -1,3 +1,5 @@
+import Reveal from "$lib/components/Reveal.svelte";
+
 export type ContentBlock =
   | { type: "h1"; text: string }
   | { type: "h2"; text: string }

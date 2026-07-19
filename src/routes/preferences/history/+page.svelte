@@ -1,5 +1,4 @@
 <script lang="ts">
-  import BackButton from '$lib/components/BackButton.svelte';
   import { reveal } from '$lib/transitions';
   import { browser } from '$app/environment';
   import { formatAttribution } from '$lib/format';
@@ -40,37 +39,26 @@
   let filtered = $derived(history.filter((entry) => matches(entry, query.trim().toLowerCase())));
 </script>
 
-<svelte:head>
-  <title>past reflections — preferences — ruakh</title>
-</svelte:head>
-
-<main class="panel-main">
-  <header class="panel-header">
-    <BackButton background="var(--color-accent)" />
-    <h1 class="panel-title">past reflections</h1>
-  </header>
-
-  {#if history.length > 0}
-    <div class="panel-search-wrap">
-      <input class="panel-search" type="text" placeholder="Search..." bind:value={query} />
-      <span class="panel-search-icon"><Icon name="search" size="1.9rem" /></span>
-    </div>
-  {/if}
-
-  <div class="panel-list">
-    {#each filtered as entry (entry.seenOn)}
-      <a class="panel-card" href="/reflections/{entry.id}" in:reveal|global>
-        <div class="panel-card-title">{preview(entry.body.map(blocksToText).join(' '))}</div>
-        <div class="panel-card-meta meta-row">
-          <small>{formatAttribution(entry.attribution, entry.source) ?? ''}</small>
-          <small>{entry.seenOn}</small>
-        </div>
-      </a>
-    {:else}
-      <p class="panel-blurb">{loaded ? 'Your past reflections will gather here.' : 'Loading…'}</p>
-    {/each}
+{#if history.length > 0}
+  <div class="panel-search-wrap" in:reveal|global out:reveal|global>
+    <input class="panel-search" type="text" placeholder="Search..." bind:value={query} />
+    <span class="panel-search-icon"><Icon name="search" size="1.9rem" /></span>
   </div>
-</main>
+{/if}
+
+<div class="panel-list" out:reveal|global>
+  {#each filtered as entry (entry.seenOn)}
+    <a class="panel-card" href="/reflections/{entry.id}" in:reveal|global>
+      <div class="panel-card-title">{preview(entry.body.map(blocksToText).join(' '))}</div>
+      <div class="panel-card-meta meta-row">
+        <small>{formatAttribution(entry.attribution, entry.source) ?? ''}</small>
+        <small>{entry.seenOn}</small>
+      </div>
+    </a>
+  {:else}
+    <p class="panel-blurb" in:reveal|global>{loaded ? 'Your past reflections will gather here.' : 'Loading…'}</p>
+  {/each}
+</div>
 
 <style>
   .meta-row {

@@ -5,9 +5,6 @@
     stroke-miterlimit="1.5">
     <g>
         <circle class="icon-bg" cx="75" cy="75" r="75"/>
-        <g>
-            <path d="M75,38.8089L75,111.1911" fill="none" stroke="currentColor" stroke-width="6"/>
-            <path d="M111.1911,75L38.8089,75" fill="none" stroke="currentColor" stroke-width="6"/>
-        </g>
+        <path d="M79.526,36.26C72.587,34.94 60.735,33.434 45.895,50.174C29.586,68.572 42.779,96.411 48.811,103.781C61.258,118.99 89.694,115.06 98.644,109.811C100.625,108.65 108.085,105.511 110.973,91.833C112.426,84.949 113.314,66.381 105.876,54.895" fill="none" stroke="currentColor" stroke-width="6"/>
     </g>
 </svg>

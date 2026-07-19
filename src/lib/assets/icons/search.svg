@@ -4,7 +4,7 @@
     fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"
     stroke-miterlimit="1.5">
     <g>
-        <circle class="icon-bg" cx="75" cy="75" r="75" fill="none"/>
+        <circle class="icon-bg" cx="75" cy="75" r="75"/>
         <g>
             <circle cx="83.71704" cy="63.28296" r="23.29338" fill="none" stroke="currentColor" stroke-width="6"/>
             <path d="M40.98958,106.01042L66.55903,80.44097" fill="none" stroke="currentColor" stroke-width="6"/>

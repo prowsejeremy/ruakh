@@ -1,5 +1,4 @@
 <script lang="ts">
-  import BackButton from '$lib/components/BackButton.svelte';
   import { reveal } from '$lib/transitions';
   import { getCachedThemes } from '$lib/client/content';
   import type { Theme } from '$lib/themes';
@@ -55,36 +54,25 @@
   }
 </script>
 
-<svelte:head>
-  <title>theme — preferences — ruakh</title>
-</svelte:head>
-
-<main class="panel-main">
-  <!-- One same-tick batch, so reveals order themselves by position: header
-       first, then the swatch grid row by row, left to right. -->
-  <header class="panel-header" in:reveal|global>
-    <BackButton background="var(--color-accent)" />
-    <h1 class="panel-title">theme</h1>
-  </header>
-
-  <div class="panel-swatch-grid">
-    {#each themeList as t (t.id)}
-      <button
-        type="button"
-        class="panel-swatch"
-        in:reveal|global
-        class:active={activeThemeId === String(t.id)}
-        aria-pressed={activeThemeId === String(t.id)}
-        onclick={() => chooseTheme(t)}
-      >
-        <span
-          class="panel-swatch-preview"
-          style="--sw-bg: {t.bg}; --sw-line: {t.line};"
-        ></span>
-        <span class="panel-swatch-name">{t.name}</span>
-      </button>
-    {:else}
-      <p class="panel-blurb" in:reveal|global>No themes found.</p>
-    {/each}
-  </div>
-</main>
+<!-- Container carries `out` (the grid leaves as one block); each swatch carries
+     `in` so the batch orders itself by position, row by row, left to right. -->
+<div class="panel-swatch-grid" out:reveal|global>
+  {#each themeList as t (t.id)}
+    <button
+      type="button"
+      class="panel-swatch"
+      in:reveal|global
+      class:active={activeThemeId === String(t.id)}
+      aria-pressed={activeThemeId === String(t.id)}
+      onclick={() => chooseTheme(t)}
+    >
+      <span
+        class="panel-swatch-preview"
+        style="--sw-bg: {t.bg}; --sw-line: {t.line};"
+      ></span>
+      <span class="panel-swatch-name">{t.name}</span>
+    </button>
+  {:else}
+    <p class="panel-blurb" in:reveal|global>No themes found.</p>
+  {/each}
+</div>
