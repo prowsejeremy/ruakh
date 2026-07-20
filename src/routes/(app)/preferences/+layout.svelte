@@ -50,27 +50,19 @@
      outgoing page during a swap. Only {@render children()} (the page body) is
      swapped on sub-navigation, so the header's in/out reveal fires just once,
      when the whole preferences section is entered or closed. -->
-<div class="prefs">
-  <main class="panel-main">
-    <header class="panel-header" in:reveal|global out:reveal|global>
-      {#if isIndex}
-        <h1 class="panel-title">{title}</h1>
-        <a class="panel-close" href={exitRoute} aria-label="close preferences">
-          <Icon name="close" background="var(--color-accent)" size="100%" />
-        </a>
-      {:else}
-        <BackButton background="var(--color-accent)" />
-        <h1 class="panel-title">{title}</h1>
-      {/if}
-    </header>
 
-    {@render children()}
-  </main>
+<div class="panel-main" out:reveal|global>
+  <header class="panel-header" in:reveal|global>
+    {#if isIndex}
+      <h1 class="panel-title">{title}</h1>
+      <a class="panel-close" href={exitRoute} aria-label="close preferences">
+        <Icon name="close" background="var(--color-accent)" size="100%" />
+      </a>
+    {:else}
+      <BackButton background="var(--color-accent)" />
+      <h1 class="panel-title">{title}</h1>
+    {/if}
+  </header>
+
+  {@render children()}
 </div>
-
-<style>
-  .prefs {
-    min-height: calc(100vh - var(--app-header-height));
-    min-height: calc(100dvh - var(--app-header-height));
-  }
-</style>

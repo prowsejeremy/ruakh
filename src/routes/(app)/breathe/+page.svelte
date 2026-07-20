@@ -2,10 +2,9 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { reveal } from '$lib/transitions';
-  import Reveal from '$lib/components/Reveal.svelte';
   import Icon from '$lib/components/Icon.svelte';
-  import Actions from '$lib/components/Actions.svelte';
   import { patternBackground } from '$lib/client/background.svelte';
+  import { actionsBar } from '$lib/client/actions-bar.svelte';
 
   // Timing lives in JS, like IntroScreen: setTimeout is the single clock and CSS
   // only transitions to whatever state class the clock sets. The durations are
@@ -58,11 +57,14 @@
 
   const message = $derived(STEPS[stepIndex].message);
 
-  // Fade the global background lines out for the exercise itself (countdown +
-  // breathing) and back in on the intro/end info screens. The cleanup below
-  // restores them if the user navigates away mid-exercise.
+  // Hide the global background lines and the actions bar (both rendered by the
+  // (app) layout) for the exercise itself (countdown + breathing) and bring
+  // them back on the intro/end info screens. The cleanup below restores both
+  // if the user navigates away mid-exercise.
   $effect(() => {
-    patternBackground.visible = phase === 'intro' || phase === 'end';
+    const onInfoScreen = phase === 'intro' || phase === 'end';
+    patternBackground.visible = onInfoScreen;
+    actionsBar.visible = onInfoScreen;
   });
 
   // `timer` is the single pending step in the sequential chain; `cyclesDone`
@@ -132,6 +134,7 @@
     alive = false;
     clearTimeout(timer);
     patternBackground.visible = true;
+    actionsBar.visible = true;
   });
 </script>
 
@@ -143,56 +146,48 @@
      button — differing only in copy and button label. -->
 {#snippet infoScreen(copy: string, action: string)}
   <section class="intro">
-    <div class="intro-inner">
-      <Reveal>
-        <h1 class="intro-title">neshama;</h1>
-        <small>noun; from the verb "nasham"</small>
-      </Reveal>
-      <Reveal><p class="intro-copy">{@html copy}</p></Reveal>
-      <Reveal><button class="intro-start" onclick={start}>{action}</button></Reveal>
+    <div class="intro-inner" in:reveal|global out:reveal|global>
+      <h1 class="intro-title">neshama;</h1>
+      <small>noun; from the verb "nasham"</small>
+      <p class="intro-copy">{@html copy}</p>
+      <button class="intro-start" onclick={start}>{action}</button>
     </div>
   </section>
 {/snippet}
 
-<main class="breathing">
-  <section class="content">
-    {#if phase === 'intro'}
-      {@render infoScreen(INTRO_COPY, 'start')}
-    {:else if phase === 'end'}
-      {@render infoScreen(END_COPY, 're-start')}
-    {:else}
-      <div class="stage" in:reveal out:reveal>
+<div class="content">
+  {#if phase === 'intro'}
+    {@render infoScreen(INTRO_COPY, 'start')}
+  {:else if phase === 'end'}
+    {@render infoScreen(END_COPY, 're-start')}
+  {:else}
+    <section class="stage" out:reveal|global>
+      <div
+        class="circleWrap {circleState}"
+        style="--cross-dur:{CROSS_MS}ms; --step-dur:{STEP_MS}ms;"
+        in:reveal|global
+      >
+        <svg class="circle" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- The solid fill blob — always present, only ever scales. -->
+          <path
+            class="fill"
+            d="M161.379,46.182C142.809,42.65 111.096,38.622 71.384,83.417C27.743,132.647 63.046,207.141 79.187,226.863C112.494,267.561 188.588,257.044 212.536,243C217.837,239.891 237.801,231.492 245.527,194.891C249.416,176.47 251.792,126.785 231.889,96.048C214.3,68.883 178.103,49.365 161.392,46.185"
+          />
+          
+          <!-- Breathe in target, animates for hold at breathe out state. -->
+          <path
+            class="in-target"
+            pathLength="1"
+            d="M161.379,46.182C142.809,42.65 111.096,38.622 71.384,83.417C27.743,132.647 63.046,207.141 79.187,226.863C112.494,267.561 188.588,257.044 212.536,243C217.837,239.891 237.801,231.492 245.527,194.891C249.416,176.47 251.792,126.785 231.889,96.048C214.3,68.883 178.103,49.365 161.392,46.185"
+          />
 
-        <div
-          class="circleWrap {circleState}"
-          style="--cross-dur:{CROSS_MS}ms; --step-dur:{STEP_MS}ms;"
-        >
-          <svg class="circle" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <!-- The solid fill blob — always present, only ever scales. -->
-            <path
-              class="fill"
-              d="M161.379,46.182C142.809,42.65 111.096,38.622 71.384,83.417C27.743,132.647 63.046,207.141 79.187,226.863C112.494,267.561 188.588,257.044 212.536,243C217.837,239.891 237.801,231.492 245.527,194.891C249.416,176.47 251.792,126.785 231.889,96.048C214.3,68.883 178.103,49.365 161.392,46.185"
-            />
-            
-            <!-- Breathe in target, animates for hold at breathe out state. -->
-            <path
-              class="in-target"
-              pathLength="1"
-              d="M161.379,46.182C142.809,42.65 111.096,38.622 71.384,83.417C27.743,132.647 63.046,207.141 79.187,226.863C112.494,267.561 188.588,257.044 212.536,243C217.837,239.891 237.801,231.492 245.527,194.891C249.416,176.47 251.792,126.785 231.889,96.048C214.3,68.883 178.103,49.365 161.392,46.185"
-            />
-
-            <!-- Breathe out target, animates for hold at breathe in state. -->
-            <path
-              class="out-target"
-              pathLength="1"
-              d="M161.379,46.182C142.809,42.65 111.096,38.622 71.384,83.417C27.743,132.647 63.046,207.141 79.187,226.863C112.494,267.561 188.588,257.044 212.536,243C217.837,239.891 237.801,231.492 245.527,194.891C249.416,176.47 251.792,126.785 231.889,96.048C214.3,68.883 178.103,49.365 161.392,46.185"
-            />
-          </svg>
-        </div>
-
-        <button class="close" onclick={stop} aria-label="stop breathing exercise">
-          <Icon name="close" size="2.5rem" background="var(--color-accent)" />
-        </button>
+          <!-- Breathe out target, animates for hold at breathe in state. -->
+          <path
+            class="out-target"
+            pathLength="1"
+            d="M161.379,46.182C142.809,42.65 111.096,38.622 71.384,83.417C27.743,132.647 63.046,207.141 79.187,226.863C112.494,267.561 188.588,257.044 212.536,243C217.837,239.891 237.801,231.492 245.527,194.891C249.416,176.47 251.792,126.785 231.889,96.048C214.3,68.883 178.103,49.365 161.392,46.185"
+          />
+        </svg>
 
         <div class="message" aria-live="polite">
           {#if phase === 'countdown'}
@@ -201,51 +196,38 @@
             {/key}
           {:else}
             {#key message}
-              <span class="cue"><Reveal duration={REVEAL_MS}>{message}</Reveal></span>
+              <span class="cue" in:reveal|global out:reveal|global>{message}</span>
             {/key}
           {/if}
         </div>
       </div>
-    {/if}
-  </section>
-  {#if phase === 'intro' || phase === 'end'}
-    <Actions />
+
+      <button class="close" onclick={stop} aria-label="stop breathing exercise" in:reveal|global>
+        <Icon name="close" size="2.5rem" background="var(--color-accent)" />
+      </button>
+    </section>
   {/if}
-</main>
+</div>
 
 <style>
 
-  main {
+  .content {
+    /* Fills the layout <main>, which subtracts the header and actions bar. */
     position: relative;
-    min-height: calc(100vh - var(--app-header-height));
-    min-height: calc(100dvh - var(--app-header-height));
+    width: 100%;
     max-width: 34rem;
     margin: 0 auto;
     padding: 2rem;
+    flex: 0 0 100%;
     display: flex;
-    flex-direction: column;
   }
 
-  .content {
-    margin: auto;
-  }
-
-  /* Info screens and the stage overlap, both centred, so an info screen's
-     reveal-out crossfades with the circle's fade-in in place. */
-  .intro,
-  .stage {
-    inset: 0;
+  .intro, .stage {
+    flex: 0 0 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .stage {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    flex-direction: column;
   }
 
   .intro-inner {
@@ -254,10 +236,12 @@
     gap: 1.5rem;
     max-width: 32rem;
   }
+
   .intro-title {
     font-size: var(--text-heading);
     line-height: 1;
   }
+
   .intro-copy {
     font-size: var(--text-body);
     max-width: 30rem;
@@ -307,25 +291,23 @@
 
   /* Top-right of the stage; the offsets override the stage's flex-centering. */
   .close {
-    z-index: 2;
-    display: inline-flex;
     padding: 0;
     background: none;
     border: none;
     cursor: pointer;
-    align-self: flex-end;
+    /* margin-top: auto; */
   }
 
   /* Fixed-size box; a constant scale sets the whole piece's overall size. The
      fill blob (not the wrapper) is what grows and shrinks per phase. */
   .circleWrap {
-    position: absolute;
     width: 100%;
     max-width: 80vh;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: scale(0.7);
+    margin: auto;
   }
 
   .circle {

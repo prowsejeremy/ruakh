@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Actions from '$lib/components/Actions.svelte';
   import { blocksToHtml } from '$lib/markdown';
   import { reveal } from '$lib/transitions';
   import type { PageData } from './$types';
@@ -11,20 +10,18 @@
   <title>{data.uri} — ruakh</title>
 </svelte:head>
 
-<main>
+<div class="page">
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- text is escaped in blocksToHtml -->
   <section class="content" in:reveal|global out:reveal|global>
     {@html blocksToHtml(data.blocks)}
   </section>
-
-  <Actions />
-</main>
+</div>
 
 <style>
-  main {
-    /* The global wordmark header (root layout) sits above; fill the rest. */
-    min-height: calc(100vh - var(--app-header-height));
-    min-height: calc(100dvh - var(--app-header-height));
+  .page {
+    /* Fills the layout <main>, which subtracts the header and actions bar. */
+    flex: 1;
+    width: 100%;
     max-width: 34rem;
     margin: 0 auto;
     padding: 2rem;

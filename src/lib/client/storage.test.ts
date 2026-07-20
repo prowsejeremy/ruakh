@@ -44,6 +44,30 @@ describe('favorites', () => {
   });
 });
 
+// Svelte 5 `$state` wraps objects in deep proxies, and IndexedDB's structured
+// clone rejects proxies (DataCloneError) — including ones nested inside an
+// otherwise-plain record. Callers hold reflections in reactive state (the
+// Actions bar's save button), so the store must snapshot to plain data.
+function deepProxy<T>(value: T): T {
+  if (value === null || typeof value !== 'object') return value;
+  return new Proxy(value as object, {
+    get: (target, key) => deepProxy(Reflect.get(target, key))
+  }) as T;
+}
+
+describe('reactive-proxy inputs (Svelte $state)', () => {
+  it('addFavorite stores a deep-proxied reflection as plain data', async () => {
+    await addFavorite(deepProxy(reflectionA));
+    expect(await isFavorite(1)).toBe(true);
+    expect((await listFavorites())[0]).toMatchObject({ body: [parseContent('a')], attribution: 'A' });
+  });
+
+  it('recordHistory stores a deep-proxied reflection as plain data', async () => {
+    await recordHistory(deepProxy(reflectionB), '2026-07-21');
+    expect((await listHistory())[0]).toMatchObject({ id: 2, seenOn: '2026-07-21' });
+  });
+});
+
 describe('history', () => {
   it('records one entry per UTC day, idempotently', async () => {
     await recordHistory(reflectionA, '2026-07-01');

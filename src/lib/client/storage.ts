@@ -47,9 +47,24 @@ function getDb(): Promise<IDBPDatabase> {
   return dbPromise;
 }
 
+// Callers hold reflections in Svelte `$state` (e.g. the Actions bar), whose
+// deep proxies IndexedDB's structured clone rejects with DataCloneError — a
+// top-level spread isn't enough, nested `body` values stay proxied. Copy
+// field-by-field (not `...reflection`) so a future nested field added to
+// ReflectionView is a type error here instead of a silently proxied value.
+function toPlainReflection(reflection: ReflectionView): ReflectionView {
+  return {
+    id: reflection.id,
+    body: reflection.body.map((part) => part.map((block) => ({ ...block }))),
+    attribution: reflection.attribution,
+    source: reflection.source,
+    copyright: reflection.copyright
+  };
+}
+
 export async function addFavorite(reflection: ReflectionView): Promise<void> {
   const db = await getDb();
-  const record: FavoriteRecord = { ...reflection, favoritedAt: nextFavoritedAt() };
+  const record: FavoriteRecord = { ...toPlainReflection(reflection), favoritedAt: nextFavoritedAt() };
   await db.put('favorites', record);
 }
 
@@ -72,7 +87,7 @@ export async function listFavorites(): Promise<FavoriteRecord[]> {
 /** Record the reflection seen on a given UTC day. Re-recording the same day is a no-op overwrite. */
 export async function recordHistory(reflection: ReflectionView, seenOn: string): Promise<void> {
   const db = await getDb();
-  const record: HistoryRecord = { ...reflection, seenOn };
+  const record: HistoryRecord = { ...toPlainReflection(reflection), seenOn };
   await db.put('history', record);
 }
 

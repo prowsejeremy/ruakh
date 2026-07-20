@@ -2,9 +2,9 @@
   import { fade } from 'svelte/transition';
   import { reveal } from '$lib/transitions';
   import { swipeStep } from '$lib/swipe';
+  import { actionsBar } from '$lib/client/actions-bar.svelte';
   import { formatAttribution } from '$lib/format';
   import { blocksToHtml } from '$lib/markdown';
-  import Actions from '$lib/components/Actions.svelte';
   import type { ReflectionView } from '$lib/types';
 
   let { reflection, fromIntro = false }: { reflection: ReflectionView | null; fromIntro?: boolean } =
@@ -64,6 +64,25 @@
     commitSwipe(lastX, lastY, e.timeStamp);
   }
 
+  // Publish the shown reflection to the layout-owned Actions bar so its save
+  // button targets what's actually on screen (tracks the home page's offline
+  // override, not just load data). The effect only reads `reflection` (the
+  // prop) and writes the store — it never reads the store back, so it can't
+  // depend on what it writes and won't loop.
+  //
+  // Cleared on unmount, but guarded: with `out:reveal|global` the outgoing
+  // screen tears down *after* the incoming one has published, so an
+  // unconditional clear would wipe the new reflection. Comparing ids (captured
+  // from the prop, matched in the untracked teardown) clears only our own
+  // entry, leaving a newer reflection in place.
+  $effect(() => {
+    actionsBar.reflection = reflection;
+    const publishedId = reflection?.id ?? null;
+    return () => {
+      if (actionsBar.reflection?.id === publishedId) actionsBar.reflection = null;
+    };
+  });
+
   // A different reflection (offline fallback, navigation) starts fresh.
   // svelte-ignore state_referenced_locally -- seed with the mount-time id on purpose
   let lastId = reflection?.id;
@@ -83,9 +102,11 @@
 
 <!-- The wordmark header lives in the root layout, which also hosts the intro
      morph's receive target. -->
-<!-- The screen enters as one unit (reveal). No exit reveal: a global outro on
-     in-flow content would hold the outgoing page alive during navigation. -->
-<section class:intro-entrance={introEntrance}>
+<!-- Reveals are |global: a page swap destroys/creates this screen from far
+     above the local {#if} blocks, and local transitions are skipped on
+     ancestor changes. The (app) layout's persistent frame plus the reveal
+     handoff (see transitions.ts) cover the in/out overlap during navigation. -->
+<section class:intro-entrance={introEntrance} out:reveal|global>
   {#if reflection}
     <!-- Only the active part is rendered; the key makes part changes (and new
          reflections) crossfade between the outgoing and incoming slide. -->
@@ -99,7 +120,6 @@
       onpointerup={onPointerUp}
       onpointercancel={onPointerCancel}
       in:reveal|global
-      out:reveal|global
     >
       {#key `${reflection.id}:${active}`}
         <blockquote class="slide" transition:fade={{ duration: fadeMs() }}>
@@ -114,7 +134,7 @@
       {/key}
     </div>
     {#if reflection.body.length > 1}
-      <div class="dots" role="group" aria-label="reflection parts" in:reveal|global out:reveal|global>
+      <div class="dots" role="group" aria-label="reflection parts" in:reveal|global>
         {#each reflection.body as _, i (i)}
           <button
             type="button"
@@ -129,30 +149,31 @@
     {/if}
     {#if credit}
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-      <div class="attribution" onclick={toggleAttribution} in:reveal|global out:reveal|global>
+      <div class="attribution" onclick={toggleAttribution} in:reveal|global>
         {#if attribution == 'author'}
-          <small class="author" in:reveal|global={{y: 10}} out:reveal={{y: 10}}>{credit}</small>
+          <small class="author" in:reveal={{y: 10}}>{credit}</small>
         {:else if copyright && attribution == 'copyright'}
-          <small class="copyright" in:reveal|global={{ endOpacity: 0.5, y: 10 }} out:reveal={{y: 10}}>{copyright}</small>
+          <small class="copyright" in:reveal={{ endOpacity: 0.5, y: 10 }}>{copyright}</small>
         {/if}
       </div>
     {/if}
-    <!-- Wrapper carries the intro-entrance fade; Actions itself stays free of
-      intro coupling so it drops cleanly into other screens. -->
-    <Actions save={reflection} />
   {:else}
-    <p class="empty" in:reveal|global out:reveal|global>No reflection is available yet.</p>
+    <p class="empty" in:reveal|global>No reflection is available yet.</p>
   {/if}
 </section>
 
 <style>
   section {
-    /* The global wordmark header (root layout) sits above; fill the rest. */
-    height: calc(100vh - var(--app-header-height));
-    height: calc(100dvh - var(--app-header-height));
+    /* Fills the layout <main> (which already subtracts the header and actions
+       bar); slides are absolutely positioned, so long parts scroll internally
+       instead of growing the page. Pinned to main's full height (not flex: 1):
+       during a page swap the incoming page briefly shares the flex container,
+       and a shrinkable section would collapse mid-outro, clipping the slide. */
+    flex: 0 0 100%;
     display: flex;
     flex-direction: column;
     padding: 2rem;
+    width: 100%;
     max-width: 34rem;
     margin: 0 auto;
   }

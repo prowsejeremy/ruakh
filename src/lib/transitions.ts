@@ -151,7 +151,7 @@ function flush() {
  * The invariant that prevents stacking: every incoming top-level element has an
  * `in` (so it respects the handoff), and every outgoing container has an `out`
  * (so there is an out-span for the next page's `in` batch to wait on). A shared
- * layout that owns a single persistent frame (see `routes/preferences`) is the
+ * layout that owns a single persistent frame (see `routes/(app)/preferences`) is the
  * other half — a persistent wrapper can never stack behind an outgoing page.
  */
 export function reveal(

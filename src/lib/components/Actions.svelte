@@ -12,7 +12,9 @@
   // heart button and feeds the favorite logic below.
   let { save = null }: { save?: ReflectionView | null } = $props();
 
-  const currentRoute = page.url.pathname;
+  // $derived: Actions now lives in the root layout and survives client-side
+  // navigation, so the active route must track the URL, not the mount.
+  const currentRoute = $derived(page.url.pathname);
 
   // Actions only ever renders on the page you'd leave to open preferences
   // (never on a preferences page itself), so the current pathname is the
@@ -25,9 +27,13 @@
   let saved = $state(false);
 
   $effect(() => {
+    // The bar persists across navigations, so `save` swaps identity in place;
+    // start each reflection unfilled (matching the old per-page remount)
+    // instead of flashing the previous one's state while the lookup resolves.
+    saved = false;
     if (browser && save) {
       // Guard against a stale response clobbering a toggle made before it
-      // resolved (and against `save` changing identity in the future).
+      // resolved (or after `save` has moved on to another reflection).
       const id = save.id;
       isFavorite(id)
         .then((v) => {
@@ -39,6 +45,7 @@
 
   async function toggleSave() {
     if (!save) return;
+
     try {
       if (saved) {
         await removeFavorite(save.id);
@@ -65,7 +72,7 @@
   </a>
 {/snippet}
 
-<div class="actions" in:reveal|global out:reveal|global>
+<div class="actions" in:reveal>
   <!-- Reflection save button -->
   {#if save && save.id}
     <button type="button" aria-label={saved ? 'saved' : 'save'} onclick={toggleSave} class="save">
@@ -85,10 +92,15 @@
     grid-template-areas: 
       "save home breathe preferences";
     justify-content: space-between;
+    align-items: center;
     font-size: var(--text-small);
-    align-self: flex-end;
-    margin-top: auto;
+    /* Fixed-height bar below the layout <main>; the main subtracts this via
+       --app-actions-height, mirroring the header slot. */
+    min-height: var(--app-actions-height);
     width: 100%;
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: 1rem 2rem;
 
     button {
       background: none;
