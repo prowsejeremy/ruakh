@@ -23,6 +23,8 @@ describe('examplePreview', () => {
     expect(examplePreview('# A heading')).toBe('<h1>A heading</h1>');
     expect(examplePreview('## A subheading')).toBe('<h2>A subheading</h2>');
     expect(examplePreview('-# A small note')).toBe('<small>A small note</small>');
+    expect(examplePreview('Some **bold** text')).toBe('<p>Some <strong>bold</strong> text</p>');
+    expect(examplePreview('Some __italic__ text')).toBe('<p>Some <em>italic</em> text</p>');
     expect(examplePreview('---')).toBe('<hr />');
     expect(examplePreview('First paragraph.\n\nSecond paragraph.')).toBe(
       '<p>First paragraph.</p><p>Second paragraph.</p>'

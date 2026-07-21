@@ -17,6 +17,8 @@ export const MARKDOWN_EXAMPLES: MarkdownExample[] = [
   { label: "Heading", syntax: "# A heading" },
   { label: "Subheading", syntax: "## A subheading" },
   { label: "Small note", syntax: "-# A small note" },
+  { label: "Bold", syntax: "Some **bold** text" },
+  { label: "Italic", syntax: "Some __italic__ text" },
   { label: "Divider", syntax: "---" },
   { label: "Paragraphs", syntax: "First paragraph.\n\nSecond paragraph." },
 ];

@@ -13,6 +13,8 @@
   // leaving /admin unmounts that layout and remounts this one.
   $effect(() => {
     applyTheme(loadTheme());
+    // Hide the actions bar on the preferences screen, which is a modal overlay
+    actionsBar.visible = !page.url.pathname.includes('preferences');
   });
 </script>
 
@@ -44,7 +46,8 @@
     flex-direction: column;
     height: calc(100vh - var(--app-header-height) - var(--app-actions-height));
     height: calc(100dvh - var(--app-header-height) - var(--app-actions-height));
-    overflow: scroll;
+    overflow: hidden;
+    overflow-y: auto;
     transition: height 600ms var(--transition-timing) 300ms; /* matches .lines in PatternBackground */
   }
 </style>

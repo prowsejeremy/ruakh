@@ -24,7 +24,7 @@
 
   /* Global actions bar (root layout): 2rem icons + 2rem padding each side.
      Subtracted, together with --app-header-height, from the layout <main>. */
-  --app-actions-height: 4rem;
+  --app-actions-height: 4.5rem;
 
   /* transition timing function */
   --transition-timing: cubic-bezier(0.33, 1, 0.68, 1);

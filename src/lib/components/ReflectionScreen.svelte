@@ -173,6 +173,7 @@
     display: flex;
     flex-direction: column;
     padding: 2rem;
+    gap: 1rem;
     width: 100%;
     max-width: 34rem;
     margin: 0 auto;
@@ -187,7 +188,9 @@
     position: absolute;
     inset: 0;
     display: flex;
-    overflow-y: auto; /* a long part scrolls vertically inside its slide */
+    /* a long part scrolls vertically inside its slide */
+    overflow: hidden;
+    overflow-y: auto;
 
     /* Blocks are injected via {@html}, so these selectors must be :global —
        Svelte does not scope styles onto @html output. */

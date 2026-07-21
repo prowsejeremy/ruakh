@@ -44,7 +44,7 @@ export function parseContent(content: string): ContentBlock[] {
 
 /** Plain text of a block list — for search haystacks and card previews. */
 export function blocksToText(blocks: ContentBlock[]): string {
-  return blocks.map((b) => b.text).join(" ");
+  return blocks.map((b) => (b.text === null ? "" : stripInline(b.text))).join(" ");
 }
 
 export interface BlocksToHtmlOptions {
@@ -59,6 +59,22 @@ function escapeHtml(text: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+/**
+ * Inline formatting: `**bold**` → `<strong>`, `__italic__` → `<em>`. Escapes
+ * HTML first (the markers survive escaping), then rewrites markers to tags.
+ * Bold before italic so either nesting order (`**__x__**`/`__**x**__`) resolves.
+ */
+function inlineToHtml(text: string): string {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/__(.+?)__/g, "<em>$1</em>");
+}
+
+/** Drop inline `**`/`__` markers, leaving the text they wrapped. */
+function stripInline(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
 }
 
 /**
@@ -83,7 +99,7 @@ export function blocksToHtml(
           : block.type === "h2"
             ? `h${Math.min(2 + headingOffset, 6)}`
             : block.type;
-      return `<${tag}${attr}>${escapeHtml(block.text)}</${tag}>`;
+      return `<${tag}${attr}>${inlineToHtml(block.text)}</${tag}>`;
     })
     .join("");
 }

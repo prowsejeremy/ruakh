@@ -5,6 +5,7 @@
   import Icon, {type IconName } from '$lib/components/Icon.svelte';
   import { reveal } from '$lib/transitions';
   import type { ReflectionView } from '$lib/types';
+  import { fade } from 'svelte/transition';
 
   type NavLinkType = { href: string; label: string; icon: IconName };
 
@@ -67,16 +68,16 @@
 </script>
 
 {#snippet NavLink({href, label, icon}: { href: string; label: string; icon: IconName; })}
-  <a href={href} aria-label={label} class={icon}>
-    <Icon name={icon} size="2rem" background={currentRoute === href ? 'rgba(var(--color-ink-rgb), 0.2)' : 'transparent'} />
+  <a href={href} aria-label={label} class={`action ${icon}`}>
+    <Icon name={icon} background={currentRoute === href ? 'rgba(var(--color-ink-rgb), 0.2)' : 'transparent'} size="100%" />
   </a>
 {/snippet}
 
-<div class="actions" in:reveal>
+<div class="actions" in:reveal out:fade>
   <!-- Reflection save button -->
   {#if save && save.id}
-    <button type="button" aria-label={saved ? 'saved' : 'save'} onclick={toggleSave} class="save">
-      <Icon name="heart" fill={saved ? 'currentColor' : 'transparent'} size="2rem" />
+    <button type="button" aria-label={saved ? 'saved' : 'save'} onclick={toggleSave} class="save action" in:fade out:fade>
+      <Icon name="heart" fill={saved ? 'currentColor' : 'transparent'} size="100%" />
     </button>
   {/if}
   
@@ -87,8 +88,9 @@
 
 <style>
   .actions {
+    --icon-size: 2.2rem;
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(4, var(--icon-size));
     grid-template-areas: 
       "save home breathe preferences";
     justify-content: space-between;
@@ -101,6 +103,12 @@
     max-width: 34rem;
     margin: 0 auto;
     padding: 1rem 2rem;
+
+    .action {
+      display: block;
+      width: var(--icon-size);
+      height: var(--icon-size);
+    }
 
     button {
       background: none;

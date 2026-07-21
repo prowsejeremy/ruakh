@@ -68,6 +68,12 @@ describe('blocksToText', () => {
     const sections = ['One.\n\nTwo.', 'Three.'].map(parseContent);
     expect(blocksToText(sections.flat())).toBe('One. Two. Three.');
   });
+
+  it('strips inline bold/italic markers from plain text', () => {
+    expect(blocksToText(parseContent('a **bold** and __italic__ word'))).toBe(
+      'a bold and italic word'
+    );
+  });
 });
 
 describe('blocksToHtml', () => {
@@ -109,5 +115,35 @@ describe('blocksToHtml', () => {
   it('preserves single newlines for pre-line rendering', () => {
     const [block] = parseContent('line one\nline two');
     expect(blocksToHtml([block])).toBe('<p>line one\nline two</p>');
+  });
+
+  it('renders **text** as <strong> inside a block', () => {
+    const [block] = parseContent('a **bold** word');
+    expect(blocksToHtml([block])).toBe('<p>a <strong>bold</strong> word</p>');
+  });
+
+  it('renders __text__ as <em> inside a block', () => {
+    const [block] = parseContent('an __italic__ word');
+    expect(blocksToHtml([block])).toBe('<p>an <em>italic</em> word</p>');
+  });
+
+  it('renders bold and italic inside headings too', () => {
+    const [block] = parseContent('# a **bold** __heading__');
+    expect(blocksToHtml([block])).toBe('<h1>a <strong>bold</strong> <em>heading</em></h1>');
+  });
+
+  it('handles multiple runs of the same marker', () => {
+    const [block] = parseContent('**one** and **two**');
+    expect(blocksToHtml([block])).toBe('<p><strong>one</strong> and <strong>two</strong></p>');
+  });
+
+  it('nests italic inside bold', () => {
+    const [block] = parseContent('**bold __both__**');
+    expect(blocksToHtml([block])).toBe('<p><strong>bold <em>both</em></strong></p>');
+  });
+
+  it('escapes HTML before applying inline markers', () => {
+    const [block] = parseContent('**a < b**');
+    expect(blocksToHtml([block])).toBe('<p><strong>a &lt; b</strong></p>');
   });
 });

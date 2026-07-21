@@ -18,15 +18,15 @@
 
   const INTRO_COPY =
     '<p>The Hebrew word for "breath" or "soul". It literally means the inhalation and exhalation of air.</p>' +
-    '<p>The following breathing exercise, seeks to give you space to slow down and focus on the breath of life:</p>' +
+    '<p>Slow down and make use of the following breathing exercise to focus on that which sustains you:</p>' +
     '<div class="breathe-instructions">' +
-    '<p class="step"><span class="marker">01</span>Breathe in through your nose.</p>' +
-    '<p class="step"><span class="marker">02</span>Hold</p>' +
-    '<p class="step"><span class="marker">03</span>Breathe out through your mouth</p>' +
-    '<p class="step"><span class="marker">04</span>Hold</p>' +
+    '<p class="step"><span class="marker">1</span>Breathe <i>in</i> through your nose.</p>' +
+    '<p class="step"><span class="marker">2</span>Pause</p>' +
+    '<p class="step"><span class="marker">3</span>Breathe <i>out</i> through your mouth</p>' +
+    '<p class="step"><span class="marker">4</span>Pause</p>' +
     '<p class="step">Repeat.</p>' +
     '</div>' +
-    '<p>The exercise will go for 3 minutes, but feel free to stop at any time.</p>';
+    '<p>The exercise will continue for 3 minutes, but feel free to stop at any time.</p>';
   const END_COPY =
     '<p>We hope you enjoyed taking a moment to pause and breathe. As you go, may you take ' +
     'with you the sustaining breath of your loving Father.</p>';
@@ -147,8 +147,10 @@
 {#snippet infoScreen(copy: string, action: string)}
   <section class="intro">
     <div class="intro-inner" in:reveal|global out:reveal|global>
-      <h1 class="intro-title">neshama;</h1>
-      <small>noun; from the verb "nasham"</small>
+      <div class="intro-header">
+        <h1 class="intro-title">neshama;</h1>
+        <small>noun; from the verb "nasham"</small>
+      </div>
       <p class="intro-copy">{@html copy}</p>
       <button class="intro-start" onclick={start}>{action}</button>
     </div>
@@ -240,6 +242,7 @@
   .intro-title {
     font-size: var(--text-heading);
     line-height: 1;
+    margin-bottom: 0.5rem;
   }
 
   .intro-copy {
