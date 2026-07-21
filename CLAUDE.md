@@ -51,7 +51,8 @@ Postgres via **Drizzle ORM** · `idb` (IndexedDB) · `web-push` · Vitest.
   `sendDueReminders()` + session GC (no cron/queue). `lastSentOn` is a restart-safe
   once-a-day guard with late catch-up; dead endpoints self-prune; timer is `unref()`'d
   for clean SIGTERM. Sessions are Lucia-pattern (cookie holds token, DB stores its
-  SHA-256; 30-day sliding renewal). `push_subscriptions` is the only user-adjacent
+  SHA-256; absolute 3-hour cap set at login, no sliding renewal — re-auth
+  required after 3 hours). `push_subscriptions` is the only user-adjacent
   server data — anonymous.
 - **Theming:** admin-managed DB rows; picked theme snapshotted to
   `localStorage('ruakh:theme')` and applied by an inline **pre-paint script in

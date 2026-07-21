@@ -1,11 +1,11 @@
-import { building, dev } from '$app/environment';
-import { error, redirect, type Handle } from '@sveltejs/kit';
-import { sendDueReminders } from '$lib/server/push/sender';
+import { building, dev } from "$app/environment";
+import { error, redirect, type Handle } from "@sveltejs/kit";
+import { sendDueReminders } from "$lib/server/push/sender";
 import {
   SESSION_COOKIE,
   deleteExpiredSessions,
-  validateSessionToken
-} from '$lib/server/auth/session';
+  validateSessionToken,
+} from "$lib/server/auth/session";
 
 const TICK_MS = 5 * 60 * 1000;
 
@@ -24,14 +24,18 @@ declare global {
 if (!building) {
   if (globalThis.__ruakhPushTimer) clearInterval(globalThis.__ruakhPushTimer);
   globalThis.__ruakhPushTimer = setInterval(() => {
-    sendDueReminders().catch((err) => console.error('[push] send tick failed', err));
-    deleteExpiredSessions().catch((err) => console.error('[auth] session cleanup failed', err));
+    sendDueReminders().catch((err) =>
+      console.error("[push] send tick failed", err),
+    );
+    deleteExpiredSessions().catch((err) =>
+      console.error("[auth] session cleanup failed", err),
+    );
   }, TICK_MS);
   // Don't hold the event loop open: adapter-node's SIGTERM handling waits for
   // the loop to drain, and a referenced interval would hang the container
   // until SIGKILL. The HTTP server keeps the process alive in normal use.
   globalThis.__ruakhPushTimer.unref?.();
-  process.once('sveltekit:shutdown', () => {
+  process.once("sveltekit:shutdown", () => {
     if (globalThis.__ruakhPushTimer) clearInterval(globalThis.__ruakhPushTimer);
   });
 }
@@ -39,35 +43,39 @@ if (!building) {
 /** Resolve the admin session cookie into `locals.admin` (null for visitors). */
 export const handle: Handle = async ({ event, resolve }) => {
   event.locals.admin = null;
+  const path = event.url.pathname;
+  // Only admin-section requests renew the session. Public-facing traffic
+  // resolves `locals.admin` but must never slide the expiry forward.
+  const isAdminPath = path === "/admin" || path.startsWith("/admin/");
+
   const token = event.cookies.get(SESSION_COOKIE);
   if (token) {
-    const result = await validateSessionToken(token);
+    const result = await validateSessionToken(token, { renew: isAdminPath });
     if (result) {
       event.locals.admin = { id: result.admin.id, email: result.admin.email };
-      // Refresh the cookie so the sliding renewal reaches the browser too.
-      event.cookies.set(SESSION_COOKIE, token, {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: !dev,
-        expires: result.session.expiresAt
-      });
+      // Push the (possibly) renewed expiry to the browser only on admin access,
+      // where renewal can have extended it. Public requests never renew, so the
+      // cookie is left untouched.
+      if (isAdminPath) {
+        event.cookies.set(SESSION_COOKIE, token, {
+          path: "/",
+          httpOnly: true,
+          sameSite: "lax",
+          secure: !dev,
+          expires: result.session.expiresAt,
+        });
+      }
     } else {
-      event.cookies.delete(SESSION_COOKIE, { path: '/' });
+      event.cookies.delete(SESSION_COOKIE, { path: "/" });
     }
   }
 
   // Central authorization chokepoint. The /admin layout guard only protects
   // page loads — SvelteKit form ACTIONS run before layout loads, so without
   // this every admin mutation would be reachable unauthenticated.
-  const path = event.url.pathname;
-  if (
-    (path === '/admin' || path.startsWith('/admin/')) &&
-    path !== '/admin/login' &&
-    !event.locals.admin
-  ) {
-    if (event.request.method !== 'GET') error(401, 'Unauthorized');
-    redirect(303, '/admin/login');
+  if (isAdminPath && path !== "/admin/login" && !event.locals.admin) {
+    if (event.request.method !== "GET") error(401, "Unauthorized");
+    redirect(303, "/admin/login");
   }
 
   return resolve(event);
