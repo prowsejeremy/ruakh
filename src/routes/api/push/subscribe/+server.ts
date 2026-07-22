@@ -3,12 +3,36 @@ import type { RequestHandler } from './$types';
 import { upsertSubscription, deleteByEndpoint } from '$lib/server/push/subscriptions';
 import { dueForSend } from '$lib/server/push/schedule';
 import { utcDateKey } from '$lib/daily';
+import { isCrossSiteRequest, clientIp } from '$lib/server/request-guard';
+import { createRateLimiter } from '$lib/server/rate-limit';
 
 /**
  * The one endpoint pair where the server touches user-adjacent data.
  * Payloads are anonymous browser push subscriptions — no identity, no
  * cookies, nothing linkable. See the design spec's privacy principles.
  */
+
+// Same speed-bumps as the bundle endpoint, tuned for writes the service worker
+// also makes: reject explicit cross-site callers (an SW fetch may omit
+// Sec-Fetch-Site, so we can't require same-origin without breaking silent
+// re-subscription) and rate-limit per IP. Writes are infrequent — a generous
+// cap that still bounds scripted abuse on top of the payload validation below.
+const RATE_LIMIT = 30;
+const RATE_WINDOW_MS = 60_000;
+const limiter = createRateLimiter({ limit: RATE_LIMIT, windowMs: RATE_WINDOW_MS });
+
+/** Short-circuit Response if the request is fenced out, else null to proceed. */
+function guard(request: Request, getClientAddress: () => string): Response | null {
+  if (isCrossSiteRequest(request)) return new Response('Forbidden', { status: 403 });
+  const { allowed, retryAfterSec } = limiter.check(clientIp(request.headers, getClientAddress()));
+  if (!allowed) {
+    return new Response('Too Many Requests', {
+      status: 429,
+      headers: { 'retry-after': String(retryAfterSec) }
+    });
+  }
+  return null;
+}
 
 type SubscribeBody = {
   endpoint?: unknown;
@@ -46,7 +70,10 @@ function decodesTo(b64url: string, bytes: number): boolean {
   }
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+  const blocked = guard(request, getClientAddress);
+  if (blocked) return blocked;
+
   const body = (await request.json().catch(() => null)) as SubscribeBody | null;
   const endpoint = typeof body?.endpoint === 'string' ? body.endpoint : null;
   const p256dh = typeof body?.keys?.p256dh === 'string' ? body.keys.p256dh : null;
@@ -80,7 +107,10 @@ export const POST: RequestHandler = async ({ request }) => {
   return json({ ok: true });
 };
 
-export const DELETE: RequestHandler = async ({ request }) => {
+export const DELETE: RequestHandler = async ({ request, getClientAddress }) => {
+  const blocked = guard(request, getClientAddress);
+  if (blocked) return blocked;
+
   const body = (await request.json().catch(() => null)) as { endpoint?: unknown } | null;
   const endpoint = typeof body?.endpoint === 'string' ? body.endpoint : null;
   if (!endpoint) return json({ error: 'invalid request' }, { status: 400 });

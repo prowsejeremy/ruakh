@@ -78,6 +78,21 @@ Scaffolded with `npx sv@0.16.1 create --template minimal --types ts --install np
 (note: this scaffold generation has no `svelte.config.js` — SvelteKit config,
 including the node adapter, lives in `vite.config.ts`).
 
+## Data size
+
+Average reflection ≈ 687 bytes of JSON (they're short prose blocks, so they compress well — roughly ~300 bytes each gzipped over the wire).
+
+What it means at scale
+Reflections dominate and grow linearly (pages/themes are basically fixed overhead). So the whole offline set is essentially ~0.7 KB × number of reflections:
+
+| Reflections  | On-device (raw) | Transfer (gzip) |
+| ------------ | --------------- | --------------- |
+| 100          | ~70 KB          | ~30 KB          |
+| 365 (a year) | ~250 KB         | ~110 KB         |
+| 1,000        | ~700 KB         | ~300 KB         |
+
+Even a decade of daily content is well under ~1 MB on device and a one-time ~300 KB download — trivial for IndexedDB (multi-hundred-MB budgets) and negligible after that, since the conditional-ETag refresh transfers zero bytes until an admin actually edits something.
+
 ## Development Setup
 
 - Ensure you have a current Node.js (20>=) development environment setup.

@@ -134,7 +134,6 @@
     alive = false;
     clearTimeout(timer);
     patternBackground.visible = true;
-    actionsBar.visible = true;
   });
 </script>
 

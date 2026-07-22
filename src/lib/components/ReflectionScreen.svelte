@@ -151,9 +151,9 @@
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
       <div class="attribution" onclick={toggleAttribution} in:reveal|global>
         {#if attribution == 'author'}
-          <small class="author" in:reveal={{y: 10}}>{credit}</small>
+          <small class="author" in:reveal={{y: 10}} out:fade>{credit}</small>
         {:else if copyright && attribution == 'copyright'}
-          <small class="copyright" in:reveal={{ endOpacity: 0.5, y: 10 }}>{copyright}</small>
+          <small class="copyright" in:reveal={{ endOpacity: 0.5, y: 10 }} out:fade>{copyright}</small>
         {/if}
       </div>
     {/if}

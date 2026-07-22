@@ -13,8 +13,8 @@ import {
 import { parseContent } from '../markdown';
 import type { ReflectionView } from '../types';
 
-const reflectionA: ReflectionView = { id: 1, body: [parseContent('a')], attribution: 'A', source: null };
-const reflectionB: ReflectionView = { id: 2, body: [parseContent('b')], attribution: null, source: 'B' };
+const reflectionA: ReflectionView = { id: 1, body: [parseContent('a')], attribution: 'A', source: null, copyright: null };
+const reflectionB: ReflectionView = { id: 2, body: [parseContent('b')], attribution: null, source: 'B', copyright: null };
 
 beforeEach(async () => {
   await clearAllData();

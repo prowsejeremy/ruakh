@@ -27,9 +27,9 @@ Postgres via **Drizzle ORM** · `idb` (IndexedDB) · `web-push` · Vitest.
 - **Home stale-override.** `/` SSRs today's pick, then on mount replaces it with a
   locally recomputed one if the served page was stale (offline, or SW-cached past UTC
   midnight), recording history under the UTC day that selected it.
-- **`ReflectionView` is the only client-facing shape** — `toReflectionView` drops
-  server-only fields (e.g. `copyright`) and pre-parses each section into
-  `ContentBlock[]` (one slide per section). Routes/components never see raw rows.
+- **`ReflectionView` is the only client-facing shape** — `toReflectionView`
+  pre-parses each section into `ContentBlock[]` (one slide per section).
+  Routes/components never see raw rows.
 - **Privacy boundary:** two IndexedDB DBs — `ruakh-content` (disposable public cache)
   vs `ruakh` (favorites + history, which **never leave the device**; records snapshot
   full content so they survive upstream edits).
@@ -47,6 +47,22 @@ Postgres via **Drizzle ORM** · `idb` (IndexedDB) · `web-push` · Vitest.
   and the reveal screen shows **only** for generated passwords (a typed one is
   already known). Password length min (12) is enforced server-side, not just via
   the input's `minlength`.
+- **Public API routes are fenced with speed-bumps, not auth.** The two public
+  `+server.ts` endpoints are hardened against casual scraping and stray load —
+  the bundle content is public, so this is deliberately *not* a confidentiality
+  control. Both reject cross-origin callers via the browser-set `Sec-Fetch-Site`
+  header and rate-limit per client IP with an **in-process** fixed-window limiter
+  (`server/rate-limit.ts`; counters reset on restart — no shared store, fits the
+  single container). Two deliberate asymmetries live in `server/request-guard.ts`:
+  `GET /api/content/bundle` is *strict* (`isSameOriginBrowserRequest` requires
+  `same-origin`/`same-site`, so curl / address-bar hits with no header are
+  refused → blocks scraping); the `push/subscribe` writes use `isCrossSiteRequest`
+  (reject only an explicit `cross-site` tag) because the **service worker** calls
+  them from `pushsubscriptionchange` and an SW fetch may omit `Sec-Fetch-Site` —
+  requiring `same-origin` there would silently break re-subscription, so curl
+  abuse of those writes is bounded by their existing payload validation + the
+  limiter instead. Client IP is keyed off `X-Real-IP` (set by nginx), falling
+  back to `X-Forwarded-For`'s first hop then `getClientAddress()`.
 - **Push scheduler is in-process:** a 5-min `setInterval` in `hooks.server.ts` drives
   `sendDueReminders()` + session GC (no cron/queue). `lastSentOn` is a restart-safe
   once-a-day guard with late catch-up; dead endpoints self-prune; timer is `unref()`'d
@@ -75,6 +91,7 @@ Public/visitor:
 | `/reflections/[id]` | Single reflection, **published-only** (404s drafts so ids can't be enumerated); `cache-control: no-cache` |
 | `/[uri]` | DB-backed markdown pages (e.g. `/about`); 404 if missing; `no-cache` |
 | `/preferences`, `/preferences/{device,history,saved,theme}` | Client-only device settings (mostly no server load; `theme` has one for SSR themes) |
+| `/breathe` | Client-only guided box-breathing exercise; hides the pattern lines + Actions bar for its duration (via the shared state below), restoring them on unmount |
 
 Admin CMS — every route under `/admin` is session-gated (except `/admin/login`);
 mutations are SvelteKit **form actions** (named), authorized by `hooks.server.ts`:
@@ -88,10 +105,13 @@ mutations are SvelteKit **form actions** (named), authorized by `hooks.server.ts
 | `/admin/themes`, `.../new`, `.../[id]` | list · `create` · `update` + `delete` |
 | `/admin/users`, `.../new`, `.../[id]` | list + `delete` · `create` · **self-edit** (`updateEmail` + `changePassword`) |
 
-API endpoints (`+server.ts`):
-- `GET /api/content/bundle` — offline content bundle (ETag/304, above).
+API endpoints (`+server.ts`) — both fenced by the `Sec-Fetch-Site` guard + per-IP
+rate limiter described above (`server/{request-guard,rate-limit}.ts`):
+- `GET /api/content/bundle` — offline content bundle (ETag/304, above); *strict*
+  same-origin guard (403 to curl / address-bar / cross-site), 60 req/min per IP.
 - `POST` / `DELETE /api/push/subscribe` — register / remove a push subscription
-  (also called by the service worker on subscription rotation).
+  (also called by the service worker on subscription rotation, hence the looser
+  cross-site-only guard so SW fetches aren't blocked); 30 req/min per IP.
 
 ### File map
 
@@ -108,6 +128,7 @@ Shared library (`src/lib/`):
 | `push-time.ts` | `toUtcMinute`, `minuteOfDayUtc` (local↔UTC reminder math) |
 | `themes.ts` | `Theme` type, `FALLBACK_THEME` |
 | `pattern.ts` | pure geometry for `PatternBackground` (chords/coverage/interpolation) |
+| `swipe.ts` | `swipeStep` (+ `SWIPE_THRESHOLD`/`SWIPE_MAX_MS`) — pure swipe-gesture decision for the reflection slider (`ReflectionScreen`) |
 | `transitions.ts` | `reveal` staggered transition + `resolveStaggerOrder` |
 | `client/theme.ts` | `loadTheme`/`applyTheme`/`saveTheme`/`hexToRgb` (localStorage `ruakh:theme`) |
 | `client/storage.ts` | private IndexedDB `ruakh`: favorites + history (never leaves device) |
@@ -116,6 +137,8 @@ Shared library (`src/lib/`):
 | `client/install.svelte.ts` | `installState` — captures `beforeinstallprompt` early |
 | `client/password.ts` | `randomPassword(len=24)` — `A–Z a–z 0–9` generator for the admin create-user "Generate" button (client-side) |
 | `client/intro.svelte.ts` | `intro.done` — shared splash-complete flag |
+| `client/actions-bar.svelte.ts` | `actionsBar` — shared `{ visible, reflection }` for the global Actions bar (set the save target; hide the bar on modal/overlay screens). Transient, browser-only |
+| `client/background.svelte.ts` | `patternBackground` — shared `{ visible }` flag for the `PatternBackground` line layer (screens fade the lines out, e.g. `/breathe`). Transient, browser-only |
 
 Server (`src/lib/server/`):
 
@@ -127,6 +150,8 @@ Server (`src/lib/server/`):
 | `db/seed.ts`, `db/create-admin.ts` | `npm run db:seed`, `npm run admin:create` scripts |
 | `content-bundle.ts` | `buildContentBundle` — assembles the offline bundle |
 | `validation.ts` | `pageUriError`, `isHexColor` (form input checks) |
+| `request-guard.ts` | `isSameOriginBrowserRequest`, `isCrossSiteRequest`, `clientIp` — public-API request fencing (`Sec-Fetch-Site`) + proxy-aware client IP |
+| `rate-limit.ts` | `createRateLimiter` — in-process fixed-window per-IP limiter (no external store) |
 | `auth/{password,session}.ts` | scrypt hashing (`scrypt:<salt>:<hash>`); Lucia-pattern sessions |
 | `push/{sender,schedule,subscriptions}.ts` | `sendDueReminders`, `dueForSend`, subscription CRUD |
 

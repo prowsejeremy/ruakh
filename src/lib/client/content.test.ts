@@ -9,9 +9,9 @@ const body = (...parts: string[]) => parts.map(parseContent);
 
 const bundle: ContentBundle = {
   reflections: [
-    { id: 1, body: body('a'), attribution: null, source: null },
-    { id: 2, body: body('b'), attribution: null, source: null },
-    { id: 3, body: body('c'), attribution: null, source: null }
+    { id: 1, body: body('a'), attribution: null, source: null, copyright: null },
+    { id: 2, body: body('b'), attribution: null, source: null, copyright: null },
+    { id: 3, body: body('c'), attribution: null, source: null, copyright: null }
   ],
   pages: [],
   themes: [],
