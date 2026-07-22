@@ -9,7 +9,7 @@
   <title>admin — ruakh</title>
 </svelte:head>
 
-<main>
+<section class="login">
   <h1>admin</h1>
 
   <form method="POST" use:enhance>
@@ -27,13 +27,12 @@
 </section>
 
 <style>
-  main {
-    min-height: calc(100vh - var(--app-header-height));
-    max-width: 24rem;
-    margin: 0 auto;
+  .login {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    margin: auto;
   }
   h1 {
     font-size: var(--text-heading);
