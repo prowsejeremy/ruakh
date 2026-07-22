@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="static/app-icons/ruakh.svg" alt="Ruakh app icon" width="96" height="96">
+  <a href="https://ruakh.jpd.nz" target="_blank" align="center">
+    <img src="static/app-icons/ruakh.svg" alt="Ruakh app icon" width="96" height="96">
+  </a>
 </p>
 
 # ruakh
@@ -11,8 +13,10 @@ reflect on. _Ruakh_ (רוּחַ) is the Hebrew word for "breath," "wind," or
 <p align="center">
   <img src="screenshots/01_intro.png" alt="intro" width="150" />
   <img src="screenshots/02_reflection.png" alt="reflection" width="150" />
-  <img src="screenshots/03_themes.png" alt="preferences - themes" width="150" />
-  <img src="screenshots/04_favorites.png" alt="preferences - favorites" width="150" />
+  <img src="screenshots/03_breathe_intro.png" alt="preferences - themes" width="150" />
+  <img src="screenshots/04_breathe.png" alt="preferences - favorites" width="150" />
+  <img src="screenshots/05_themes.png" alt="preferences - themes" width="150" />
+  <img src="screenshots/06_saved_reflections.png" alt="preferences - favorites" width="150" />
 </p>
 
 ## Principles
