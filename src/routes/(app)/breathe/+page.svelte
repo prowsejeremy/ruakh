@@ -216,9 +216,6 @@
     /* Fills the layout <main>, which subtracts the header and actions bar. */
     position: relative;
     width: 100%;
-    max-width: 34rem;
-    margin: 0 auto;
-    padding: 2rem;
     flex: 0 0 100%;
     display: flex;
   }
@@ -229,6 +226,10 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+  }
+
+  .stage {
+    padding-bottom: var(--app-gutter);
   }
 
   .intro-inner {

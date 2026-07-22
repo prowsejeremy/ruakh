@@ -16,7 +16,7 @@
   <title>my account — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">my account</h1>
@@ -80,7 +80,7 @@
       Change Password
     </button>
   {/if}
-</main>
+</section>
 
 <style>
   form {

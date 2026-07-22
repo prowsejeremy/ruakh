@@ -11,7 +11,7 @@
   <title>edit reflection — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">edit reflection</h1>
@@ -38,4 +38,4 @@
   >
     <button type="submit" class="panel-link-btn">delete this reflection</button>
   </form>
-</main>
+</section>

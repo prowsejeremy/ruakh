@@ -12,7 +12,7 @@
   --font-display: "PT Serif", Georgia, "Times New Roman", serif;
 
   --text-wordmark: clamp(4.5rem, 18vw, 9rem);
-  --text-heading: clamp(2.5rem, 9vw, 4rem);
+  --text-heading: clamp(2.5rem, 7vw, 3.5rem);
   --text-sub-heading: clamp(1.5rem, 3vw, 1.8rem);
   --text-large: 1.4rem;
   --text-body: 1.2rem;
@@ -25,6 +25,8 @@
   /* Global actions bar (root layout): 2rem icons + 2rem padding each side.
      Subtracted, together with --app-header-height, from the layout <main>. */
   --app-actions-height: 4.5rem;
+
+  --app-gutter: 1.5rem; /* horizontal padding for main content area */
 
   /* transition timing function */
   --transition-timing: cubic-bezier(0.33, 1, 0.68, 1);

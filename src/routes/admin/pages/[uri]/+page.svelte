@@ -13,7 +13,7 @@
   <title>edit page — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">edit page</h1>
@@ -48,7 +48,7 @@
   >
     <button type="submit" class="panel-link-btn">delete this page</button>
   </form>
-</main>
+</section>
 
 <style>
   form {

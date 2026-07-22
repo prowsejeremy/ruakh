@@ -10,7 +10,7 @@
   <title>admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <h1 class="panel-title">admin</h1>
 
   <p class="panel-blurb">Manage all reflections, pages and themes in this dashboard.</p>
@@ -27,7 +27,7 @@
   <form method="POST" action="?/logout" use:enhance class="signout">
     <button type="submit" class="panel-link-btn">sign out</button>
   </form>
-</main>
+</section>
 
 <style>
   .menu {

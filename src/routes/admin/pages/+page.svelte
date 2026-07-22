@@ -1,8 +1,7 @@
 <script lang="ts">
   import BackButton from '$lib/components/BackButton.svelte';
-  import Icon from '$lib/components/Icon.svelte';
   import type { PageData } from './$types';
-
+  import AdminAddButton from '$lib/components/admin/AdminAddButton.svelte';
   let { data }: { data: PageData } = $props();
 
   function preview(content: string): string {
@@ -14,7 +13,7 @@
   <title>pages — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">pages</h1>
@@ -30,6 +29,5 @@
       <p class="panel-blurb">No pages found.</p>
     {/each}
   </div>
-
-  <a class="admin-fab" href="/admin/pages/new" aria-label="New page"><Icon name="add" background="#101010" size="100%" /></a>
-</main>
+</section>
+<AdminAddButton href="/admin/pages/new" label="New page" />

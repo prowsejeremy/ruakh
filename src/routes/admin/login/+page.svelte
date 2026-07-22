@@ -24,14 +24,13 @@
     {#if form?.error}<p class="error">{form.error}</p>{/if}
     <button type="submit" class="panel-save">Sign In</button>
   </form>
-</main>
+</section>
 
 <style>
   main {
     min-height: calc(100vh - var(--app-header-height));
     max-width: 24rem;
     margin: 0 auto;
-    padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;

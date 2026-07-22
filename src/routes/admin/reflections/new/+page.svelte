@@ -10,11 +10,11 @@
   <title>new reflection — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">new reflection</h1>
   </header>
 
   <ReflectionForm action="?/create" error={form?.error} />
-</main>
+</section>

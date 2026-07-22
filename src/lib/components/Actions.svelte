@@ -102,7 +102,7 @@
     width: 100%;
     max-width: 34rem;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 1rem var(--app-gutter);
 
     .action {
       display: block;

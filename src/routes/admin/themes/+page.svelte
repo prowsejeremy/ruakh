@@ -1,6 +1,6 @@
 <script lang="ts">
+  import AdminAddButton from '$lib/components/admin/AdminAddButton.svelte';
   import BackButton from '$lib/components/BackButton.svelte';
-  import Icon from '$lib/components/Icon.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -10,7 +10,7 @@
   <title>themes — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">themes</h1>
@@ -26,6 +26,5 @@
       <p class="panel-blurb">No themes found.</p>
     {/each}
   </div>
-
-  <a class="admin-fab" href="/admin/themes/new" aria-label="New theme"><Icon name="add" background="#101010" size="100%" /></a>
-</main>
+</section>
+<AdminAddButton href="/admin/themes/new" label="New theme" />

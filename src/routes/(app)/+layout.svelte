@@ -49,5 +49,8 @@
     overflow: hidden;
     overflow-y: auto;
     transition: height 600ms var(--transition-timing) 300ms; /* matches .lines in PatternBackground */
+    max-width: 34rem;
+    padding: 0 var(--app-gutter);
+    margin: 0 auto;
   }
 </style>

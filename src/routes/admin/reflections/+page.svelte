@@ -1,4 +1,5 @@
 <script lang="ts">
+  import AdminAddButton from '$lib/components/admin/AdminAddButton.svelte';
   import BackButton from '$lib/components/BackButton.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import { blocksToText, type ContentBlock } from '$lib/markdown';
@@ -31,7 +32,7 @@
   <title>reflections — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">reflections</h1>
@@ -60,6 +61,5 @@
       <p class="panel-blurb">No reflections found.</p>
     {/each}
   </div>
-
-  <a class="admin-fab" href="/admin/reflections/new" aria-label="New reflection"><Icon name="add" background="#101010" size="100%" /></a>
-</main>
+</section>
+<AdminAddButton href="/admin/reflections/new" label="New reflection" />

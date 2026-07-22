@@ -24,7 +24,7 @@
   <title>new user — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">new user</h1>
@@ -67,7 +67,7 @@
       <button type="submit" class="panel-save">Save</button>
     </form>
   {/if}
-</main>
+</section>
 
 <style>
   form {

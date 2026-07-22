@@ -16,9 +16,9 @@
   });
 </script>
 
-<div class="admin">
+<main class="admin">
   {@render children()}
-</div>
+</main>
 
 <style>
   /* The fixed dark palette is applied above; the PatternBackground never
@@ -27,29 +27,14 @@
      height and scopes the admin-only "+" button. */
   .admin {
     /* The global wordmark header (root layout) sits above this wrapper. */
-    min-height: calc(100vh - var(--app-header-height));
-    min-height: calc(100dvh - var(--app-header-height));
-
-    /* Admin-only floating "+" create button. It's rendered by child route
-       pages, so :global is necessary to reach it — but scoped under this
-       component's own .admin rather than fully global. Structural
-       list/card/field/etc. styles live in the shared, theme-agnostic
-       src/lib/styles/panel.css (imported globally from the root layout) as
-       .panel-* classes. */
-    :global(.admin-fab) {
-      position: fixed;
-      left: 50%;
-      bottom: 2rem;
-      transform: translateX(-50%);
-      width: 3.25rem;
-      height: 3.25rem;
-      color: var(--color-ink);
-      font-size: 1.75rem;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-    }
+    height: calc(100vh - var(--app-header-height));
+    height: calc(100dvh - var(--app-header-height));
+    max-width: 34rem;
+    padding: 0 var(--app-gutter) var(--app-gutter);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--app-gutter);
   }
 </style>

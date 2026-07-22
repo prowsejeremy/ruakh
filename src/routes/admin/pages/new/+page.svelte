@@ -11,7 +11,7 @@
   <title>new page — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">new page</h1>
@@ -35,7 +35,7 @@
 
     <button type="submit" class="panel-save">Save</button>
   </form>
-</main>
+</section>
 
 <style>
   form {

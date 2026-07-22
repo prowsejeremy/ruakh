@@ -1,8 +1,8 @@
 <script lang="ts">
   import BackButton from '$lib/components/BackButton.svelte';
-  import Icon from '$lib/components/Icon.svelte';
   import { enhance } from '$app/forms';
   import type { ActionData, PageData } from './$types';
+  import AdminAddButton from '$lib/components/admin/AdminAddButton.svelte';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
 </script>
@@ -11,7 +11,7 @@
   <title>users — admin — ruakh</title>
 </svelte:head>
 
-<main class="panel-main">
+<section class="panel-main">
   <header class="panel-header">
     <BackButton background="#101010" />
     <h1 class="panel-title">users</h1>
@@ -48,9 +48,8 @@
       <p class="panel-blurb">No users found.</p>
     {/each}
   </div>
-
-  <a class="admin-fab" href="/admin/users/new" aria-label="New user"><Icon name="add" background="#101010" size="100%" /></a>
-</main>
+</section>
+<AdminAddButton href="/admin/users/new" label="New user" />
 
 <style>
   .user-card {
