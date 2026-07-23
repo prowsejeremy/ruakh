@@ -6,6 +6,12 @@
   import Icon from '$lib/components/Icon.svelte';
   import { patternBackground } from '$lib/client/background.svelte';
   import { actionsBar } from '$lib/client/actions-bar.svelte';
+  import { createBreatheAudio, type BreatheAudio } from '$lib/client/breathe-audio';
+  import { loadBreatheSettings, saveBreatheSettings } from '$lib/client/breathe-settings';
+  import backgroundSrc from '$lib/assets/audio/background.opus';
+  import inhaleSrc from '$lib/assets/audio/inhale.opus';
+  import pauseSrc from '$lib/assets/audio/pause.opus';
+  import exhaleSrc from '$lib/assets/audio/exhale.opus';
 
   // Timing lives in JS, like IntroScreen: setTimeout is the single clock and CSS
   // only transitions to whatever state class the clock sets. The durations are
@@ -58,6 +64,26 @@
 
   const message = $derived(STEPS[stepIndex].message);
 
+  // Music and voice-guide toggles. The controller (created on mount — Audio is
+  // browser-only) does the actual playing; these flags just drive the buttons.
+  // Both persist per device (localStorage) so an off toggle stays off between
+  // visits; the saved values load on mount, alongside the controller.
+  let audio: BreatheAudio | undefined;
+  let musicOn = $state(true);
+  let guideOn = $state(true);
+
+  function toggleMusic() {
+    musicOn = !musicOn;
+    audio?.setMusicEnabled(musicOn);
+    saveBreatheSettings({ music: musicOn, guide: guideOn });
+  }
+
+  function toggleGuide() {
+    guideOn = !guideOn;
+    audio?.setGuideEnabled(guideOn);
+    saveBreatheSettings({ music: musicOn, guide: guideOn });
+  }
+
   // Hide the global background lines and the actions bar (both rendered by the
   // (app) layout) for the exercise itself (countdown + breathing) and bring
   // them back on the intro/end info screens. The cleanup below restores both
@@ -84,6 +110,7 @@
   function runStep(i: number) {
     stepIndex = i;
     wait(REVEAL_MS, () => {
+      audio?.cue(STEPS[i].message);
       circleState = STEPS[i].state;
       wait(STEP_MS, () => {
         const next = i + 1;
@@ -122,19 +149,35 @@
     phase = 'countdown';
     wait(1000, () => {
       tickCountdown();
+      wait(1000, () => {
+        audio?.start();
+      });
     });
   }
 
   // Both the close button and finishing all TOTAL_CYCLES cycles land here.
   function stop() {
     clearTimeout(timer);
+    audio?.stop();
     phase = 'end';
   }
 
-  onMount(() => () => {
-    alive = false;
-    clearTimeout(timer);
-    patternBackground.visible = true;
+  onMount(() => {
+    const settings = loadBreatheSettings();
+    musicOn = settings.music;
+    guideOn = settings.guide;
+    audio = createBreatheAudio({
+      backgroundSrc,
+      cueSrcs: { inhale: inhaleSrc, pause: null, exhale: exhaleSrc }
+    });
+    audio.setMusicEnabled(musicOn);
+    audio.setGuideEnabled(guideOn);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+      audio?.destroy();
+      patternBackground.visible = true;
+    };
   });
 </script>
 
@@ -204,9 +247,29 @@
         </div>
       </div>
 
-      <button class="close" onclick={stop} aria-label="stop breathing exercise" in:reveal|global>
-        <Icon name="close" size="2.5rem" background="var(--color-accent)" />
-      </button>
+      <div class="controls" in:reveal|global>
+        <button
+          class="audio-toggle"
+          class:off={!musicOn}
+          onclick={toggleMusic}
+          aria-pressed={musicOn}
+          aria-label="toggle background music"
+        >
+          <Icon name="music" size="2rem" background={musicOn ? 'var(--color-accent)' : undefined} />
+        </button>
+        <button class="close" onclick={stop} aria-label="stop breathing exercise">
+          <Icon name="close" size="2.5rem" background="var(--color-accent)" />
+        </button>
+        <button
+          class="audio-toggle"
+          class:off={!guideOn}
+          onclick={toggleGuide}
+          aria-pressed={guideOn}
+          aria-label="toggle voice guide"
+        >
+          <Icon name="voice" size="2rem" background={guideOn ? 'var(--color-accent)' : undefined} />
+        </button>
+      </div>
     </section>
   {/if}
   </ContentWrapper>
@@ -306,6 +369,37 @@
     border: none;
     cursor: pointer;
     /* margin-top: auto; */
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  /* Music / voice-guide toggles flanking the close button. Off = no accent
+     disc, dimmed, plus a diagonal strike drawn by the ::after. */
+  .audio-toggle {
+    position: relative;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .audio-toggle.off {
+    opacity: 0.5;
+  }
+
+  .audio-toggle.off::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 2px;
+    background: currentColor;
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
 
   /* Fixed-size box; a constant scale sets the whole piece's overall size. The

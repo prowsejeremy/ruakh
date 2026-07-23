@@ -11,8 +11,10 @@
   import search from '$lib/assets/icons/search.svg?raw';
   import home from '$lib/assets/icons/home.svg?raw';
   import breathe from '$lib/assets/icons/breathe.svg?raw';
+  import music from '$lib/assets/icons/music.svg?raw';
+  import voice from '$lib/assets/icons/voice.svg?raw';
 
-  const icons = { add, back, close, forward, heart, preferences, search, home, breathe };
+  const icons = { add, back, close, forward, heart, preferences, search, home, breathe, music, voice };
   export type IconName = keyof typeof icons;
 </script>
 
