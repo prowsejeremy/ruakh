@@ -6,10 +6,20 @@ import { db } from '$lib/server/db/index';
 import { admins } from '$lib/server/db/schema';
 import { verifyPassword } from '$lib/server/auth/password';
 import { createSession, generateSessionToken, SESSION_COOKIE } from '$lib/server/auth/session';
+import { isSameOriginBrowserRequest, clientIp } from '$lib/server/request-guard';
+import { createRateLimiter } from '$lib/server/rate-limit';
 
 // A syntactically valid scrypt hash of nothing — verified against when the
 // email is unknown, so response timing doesn't reveal which emails exist.
 const DUMMY_HASH = 'scrypt:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:' + 'ab'.repeat(64);
+
+// Per-IP brute-force cap, far tighter than the public API fences: 5 attempts
+// per 15 minutes (~480/day) makes guessing a scrypt-hashed 12+ char password
+// hopeless. Counts every attempt, success included — a real admin never signs
+// in 5 times in a quarter hour. Module scope: one limiter per process.
+const LOGIN_LIMIT = 5;
+const LOGIN_WINDOW_MS = 15 * 60_000;
+const limiter = createRateLimiter({ limit: LOGIN_LIMIT, windowMs: LOGIN_WINDOW_MS });
 
 export const load: PageServerLoad = ({ locals }) => {
   if (locals.admin) redirect(303, '/admin');
@@ -17,7 +27,19 @@ export const load: PageServerLoad = ({ locals }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, cookies }) => {
+  default: async ({ request, cookies, getClientAddress }) => {
+    // Same fencing as the public API endpoints, before any parsing or scrypt
+    // work. The strict same-origin check refuses curl/scripted POSTs outright
+    // (a forged header is possible, so the limiter is the real control).
+    if (!isSameOriginBrowserRequest(request)) {
+      return fail(403, { error: 'Cross-site or non-browser requests are not accepted.' });
+    }
+    const { allowed, retryAfterSec } = limiter.check(clientIp(request.headers, getClientAddress()));
+    if (!allowed) {
+      const minutes = Math.max(1, Math.ceil(retryAfterSec / 60));
+      return fail(429, { error: `Too many attempts — try again in ${minutes} min.` });
+    }
+
     const form = await request.formData();
     const email = form.get('email');
     const password = form.get('password');

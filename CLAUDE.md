@@ -36,6 +36,25 @@ Postgres via **Drizzle ORM** · `idb` (IndexedDB) · `web-push` · Vitest.
 - **`hooks.server.ts` is the central authz chokepoint** — it must guard all `/admin`
   non-GET requests, because SvelteKit form actions run *before* layout loads (the
   `/admin` layout guard alone is insufficient).
+- **Admin pre-auth gate (`server/admin-gate.ts`, enforced in the chokepoint).**
+  With `ADMIN_ACCESS_TOKEN` set, every unauthenticated `/admin` request 404s
+  (`error(404, 'Not found')` — indistinguishable from a missing route) unless it
+  carries `?token=<value>` or the door cookie that token grants
+  (`ruakh_admin_gate`, httpOnly, path `/admin`, 1 year). A valid `?token=` GET
+  sets the cookie then 303s to the same URL minus the token so the secret leaves
+  the address bar. Valid sessions bypass the gate; unset env var disables it
+  (dev default). Comparisons are constant-time (SHA-256 both sides →
+  `timingSafeEqual`). **Why a runtime gate instead of moving the URL:** SvelteKit
+  ships every route path in the public client bundle
+  (`_app/immutable/entry/app.*.js`) and the service worker's admin-exclusion
+  check is public source, so a "secret" path leaks; the env token is verified
+  server-side only and appears in no served asset.
+- **Login brute-force fencing** (in the `/admin/login` action itself, mirroring
+  the public-API pattern): strict `isSameOriginBrowserRequest` check (403 to
+  curl/scripted POSTs) then a per-IP `createRateLimiter` at **5 attempts / 15
+  min** (429 via `fail()` so the form shows the retry time). These run before
+  form parsing/scrypt; the pre-existing timing-safe dummy-hash verify + 400ms
+  failure delay remain.
 - **Admin account self-edit is ownership-guarded per action.** The chokepoint
   only proves *authentication*; `/admin/users/[id]` additionally rejects editing
   anyone else's account — its `load` and both actions (`updateEmail`,
@@ -99,7 +118,7 @@ mutations are SvelteKit **form actions** (named), authorized by `hooks.server.ts
 | Route | Actions |
 |---|---|
 | `/admin` | `load` (dashboard), `logout` |
-| `/admin/login` | `default` (authenticate) |
+| `/admin/login` | `default` (authenticate; same-origin guard + 5/15min per-IP rate limit) |
 | `/admin/reflections`, `.../new`, `.../[id]` | list · `create` · `update` + `delete` |
 | `/admin/pages`, `.../new`, `.../[uri]` | list · `create` · `update` + `delete` |
 | `/admin/themes`, `.../new`, `.../[id]` | list · `create` · `update` + `delete` |
@@ -148,6 +167,7 @@ Server (`src/lib/server/`):
 | `db/schema.ts` | table defs + inferred types — **migration source of truth** |
 | `db/{reflections,pages,themes}.ts` | query modules; `reflections` also has `toReflectionView` |
 | `db/seed.ts`, `db/create-admin.ts` | `npm run db:seed`, `npm run admin:create` scripts |
+| `admin-gate.ts` | `adminGateDecision`, `safeTokenEqual`, door-cookie consts — pre-auth `/admin` gate (see above) |
 | `content-bundle.ts` | `buildContentBundle` — assembles the offline bundle |
 | `validation.ts` | `pageUriError`, `isHexColor` (form input checks) |
 | `request-guard.ts` | `isSameOriginBrowserRequest`, `isCrossSiteRequest`, `clientIp` — public-API request fencing (`Sec-Fetch-Site`) + proxy-aware client IP |
@@ -176,6 +196,8 @@ styles `src/lib/styles/{app,fonts,panel}.css` and PT-Serif fonts loaded in the r
 - `DATABASE_URL` — Postgres connection (required).
 - `PUBLIC_VAPID_KEY` / `PRIVATE_VAPID_KEY` / `VAPID_SUBJECT` — web-push. **Optional in
   dev**: absent keys leave the reminder scheduler idle (`ensureConfigured` returns false).
+- `ADMIN_ACCESS_TOKEN` — admin pre-auth gate (above). **Optional**: unset disables
+  the gate entirely; set in production via the `make_env_files.yml` secret.
 
 Deploy/runtime: the production image runs [docker/migrate.mjs](docker/migrate.mjs) on
 start (applies pending migrations with runtime deps only — no drizzle-kit/tsx),

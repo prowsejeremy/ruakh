@@ -1,6 +1,12 @@
 import { building, dev } from "$app/environment";
+import { env } from "$env/dynamic/private";
 import { error, redirect, type Handle } from "@sveltejs/kit";
 import { sendDueReminders } from "$lib/server/push/sender";
+import {
+  ADMIN_GATE_COOKIE,
+  ADMIN_GATE_COOKIE_MAX_AGE,
+  adminGateDecision,
+} from "$lib/server/admin-gate";
 import {
   SESSION_COOKIE,
   deleteExpiredSessions,
@@ -73,9 +79,37 @@ export const handle: Handle = async ({ event, resolve }) => {
   // Central authorization chokepoint. The /admin layout guard only protects
   // page loads — SvelteKit form ACTIONS run before layout loads, so without
   // this every admin mutation would be reachable unauthenticated.
-  if (isAdminPath && path !== "/admin/login" && !event.locals.admin) {
-    if (event.request.method !== "GET") error(401, "Unauthorized");
-    redirect(303, "/admin/login");
+  if (isAdminPath && !event.locals.admin) {
+    // Pre-auth gate: with ADMIN_ACCESS_TOKEN set, visitors without the token
+    // (or the door cookie it grants) get the same 404 a missing route gives —
+    // the admin section is unprovable from outside. Sessions bypass the gate.
+    const gateToken = env.ADMIN_ACCESS_TOKEN;
+    const decision = adminGateDecision({
+      configuredToken: gateToken,
+      queryToken: event.url.searchParams.get("token"),
+      cookieToken: event.cookies.get(ADMIN_GATE_COOKIE),
+    });
+    if (decision === "deny") error(404, "Not found");
+    if (decision === "grant") {
+      event.cookies.set(ADMIN_GATE_COOKIE, gateToken!, {
+        path: "/admin",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: !dev,
+        maxAge: ADMIN_GATE_COOKIE_MAX_AGE,
+      });
+      // Bounce GETs to the same URL minus the token so the secret leaves the
+      // address bar (and any URL the login form would later post to).
+      if (event.request.method === "GET") {
+        const clean = new URL(event.url);
+        clean.searchParams.delete("token");
+        redirect(303, clean.pathname + clean.search);
+      }
+    }
+    if (path !== "/admin/login") {
+      if (event.request.method !== "GET") error(401, "Unauthorized");
+      redirect(303, "/admin/login");
+    }
   }
 
   return resolve(event);

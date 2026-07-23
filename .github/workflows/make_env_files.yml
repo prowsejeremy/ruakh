@@ -35,6 +35,10 @@ jobs:
           PUBLIC_VAPID_KEY=${{ vars.PUBLIC_VAPID_KEY }}
           PRIVATE_VAPID_KEY=${{ secrets.PRIVATE_VAPID_KEY }}
           VAPID_SUBJECT=${{ vars.VAPID_SUBJECT }}
+
+          # Admin pre-auth gate. Empty = disabled (/admin behaves as plain
+          # session auth); set = /admin 404s without ?token=<value> / its cookie.
+          ADMIN_ACCESS_TOKEN=${{ secrets.ADMIN_ACCESS_TOKEN }}
           EOF
 
           # Consumed by the Postgres container on first init.

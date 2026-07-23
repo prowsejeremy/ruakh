@@ -57,6 +57,7 @@ Configure these under the `lightsail-production` environment:
 | `POSTGRES_DB`       | DB name                                      |
 | `PUBLIC_VAPID_KEY`  | Web Push public key (leave blank to disable) |
 | `PRIVATE_VAPID_KEY` | Web Push private key                         |
+| `ADMIN_ACCESS_TOKEN` | Admin pre-auth gate token (blank to disable); unlock with `/admin?token=<value>` |
 | `SSH_PRIVATE_KEY`   | Deploy key matching the instance             |
 
 ## First-run TLS bootstrap
