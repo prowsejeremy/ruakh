@@ -8,7 +8,7 @@ export const actions: Actions = {
     const form = await request.formData();
     const name = form.get('name');
     const bg = form.get('bg');
-    const line = form.get('line');
+    const accent = form.get('accent');
     const ink = form.get('ink');
 
     if (typeof name !== 'string' || !name.trim()) {
@@ -16,11 +16,11 @@ export const actions: Actions = {
     }
     // Hex-validate: these land in style attributes served to visitors; a
     // non-color string (via curl) would be CSS injection.
-    if (!isHexColor(bg) || !isHexColor(line) || !isHexColor(ink)) {
+    if (!isHexColor(bg) || !isHexColor(accent) || !isHexColor(ink)) {
       return fail(400, { error: 'Colors must be 6-digit hex values.' });
     }
 
-    await createTheme({ name: name.trim(), bg, line, ink });
+    await createTheme({ name: name.trim(), bg, accent, ink });
     redirect(303, '/admin/themes');
   }
 };

@@ -26,6 +26,7 @@
      Subtracted, together with --app-header-height, from the layout <main>. */
   --app-actions-height: 4.5rem;
 
+  --app-max-width: 34rem; /* max width for main content area */
   --app-gutter: 1.5rem; /* horizontal padding for main content area */
 
   /* transition timing function */
@@ -41,8 +42,11 @@
 
 html,
 body {
-  min-height: 100vh;
-  min-height: 100dvh; /* mobile address-bar-aware viewport; older Safari falls back to the line above */
+  /* min-height: 100vh; */
+  /* min-height: 100dvh; */ /* mobile address-bar-aware viewport; older Safari falls back to the line above */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 body {
@@ -69,4 +73,32 @@ hr {
     from var(--color-bg) calc(255 - r) calc(255 - g) calc(255 - b)
   );
   color: rgb(from var(--color-ink) calc(255 - r) calc(255 - g) calc(255 - b));
+}
+
+/* Global class setting the bounds of where the app content should render */
+.playground {
+  width: 100%;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  padding-inline: var(--app-gutter);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Global class making a container scrollable */
+.scrollable {
+  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+
+  /* Hide scrollbar for IE, Edge, and Firefox */
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &.horizontal {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 }

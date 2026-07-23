@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ContentWrapper from '$lib/components/ContentWrapper.svelte';
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { reveal } from '$lib/transitions';
@@ -20,11 +21,11 @@
     '<p>The Hebrew word for "breath" or "soul". It literally means the inhalation and exhalation of air.</p>' +
     '<p>Slow down and make use of the following breathing exercise to focus on that which sustains you:</p>' +
     '<div class="breathe-instructions">' +
-    '<p class="step"><span class="marker">1</span>Breathe <i>in</i> through your nose.</p>' +
-    '<p class="step"><span class="marker">2</span>Pause</p>' +
-    '<p class="step"><span class="marker">3</span>Breathe <i>out</i> through your mouth</p>' +
-    '<p class="step"><span class="marker">4</span>Pause</p>' +
-    '<p class="step">Repeat.</p>' +
+    '<p class="step"><span class="marker">1</span><span class="text">Breathe <em>in</em> through your nose.</span></p>' +
+    '<p class="step"><span class="marker">2</span><span class="text">Pause</span></p>' +
+    '<p class="step"><span class="marker">3</span><span class="text">Breathe <em>out</em> through your mouth</span></p>' +
+    '<p class="step"><span class="marker">4</span><span class="text">Pause</span></p>' +
+    '<p class="step"><span class="marker repeat">&#8635;</span><span class="text">Repeat.</span></p>' +
     '</div>' +
     '<p>The exercise will continue for 3 minutes, but feel free to stop at any time.</p>';
   const END_COPY =
@@ -156,7 +157,7 @@
   </section>
 {/snippet}
 
-<div class="content">
+<ContentWrapper>
   {#if phase === 'intro'}
     {@render infoScreen(INTRO_COPY, 'start')}
   {:else if phase === 'end'}
@@ -208,7 +209,7 @@
       </button>
     </section>
   {/if}
-</div>
+  </ContentWrapper>
 
 <style>
 
@@ -289,6 +290,12 @@
       line-height: 1.5rem;
       font-size: 0.8rem;
       border-radius: 999px;
+
+      &.repeat {
+        font-size: 1.3rem;
+        line-height: 1.2rem;
+        font-weight: 100;
+      }
     }
   }
 

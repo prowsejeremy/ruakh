@@ -1,0 +1,1 @@
+ALTER TABLE "themes" RENAME COLUMN "line" TO "accent";

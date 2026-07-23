@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ContentWrapper from '$lib/components/ContentWrapper.svelte';
   import { blocksToHtml } from '$lib/markdown';
   import { reveal } from '$lib/transitions';
   import type { PageData } from './$types';
@@ -10,33 +11,25 @@
   <title>{data.uri} — ruakh</title>
 </svelte:head>
 
-<div class="page">
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -- text is escaped in blocksToHtml -->
-  <section class="content" in:reveal|global out:reveal|global>
+<!-- eslint-disable-next-line svelte/no-at-html-tags -- text is escaped in blocksToHtml -->
+<ContentWrapper>
+  <div class="page" in:reveal|global out:reveal|global>
     {@html blocksToHtml(data.blocks)}
-  </section>
-</div>
+  </div>
+</ContentWrapper>
 
 <style>
   .page {
-    /* Fills the layout <main>, which subtracts the header and actions bar. */
-    flex: 1;
     width: 100%;
-    max-width: 34rem;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-
     /* Content is injected via {@html}, so these selectors must be :global —
        Svelte does not scope styles onto @html output. */
     :global(h1) {
-      font-size: var(--text-sub-heading);
+      font-size: var(--text-heading);
       line-height: 1;
-      padding-top: 1rem;
       margin-bottom: 2rem;
     }
     :global(h2) {
-      font-size: 1.3rem;
+      font-size: var(--text-sub-heading);
       margin-top: 2rem;
       margin-bottom: 1rem;
     }

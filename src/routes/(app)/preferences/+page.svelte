@@ -17,7 +17,6 @@
   .menu {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    flex: 0 0 100%;
+    gap: 1rem;
   }
 </style>

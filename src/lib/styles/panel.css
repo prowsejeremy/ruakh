@@ -11,9 +11,7 @@
   flex-direction: column;
   flex: 1 0 auto;
   gap: 1.5rem;
-  overflow: hidden;
-  overflow-y: auto;
-  height: 100%;
+  padding-bottom: var(--app-gutter);
 }
 
 .panel-header {
@@ -246,7 +244,7 @@ p.panel-blurb {
 
 .panel-swatch-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
   gap: 1.25rem;
 }
 
@@ -272,7 +270,7 @@ p.panel-blurb {
   background: linear-gradient(
     135deg,
     var(--sw-bg) 0 42%,
-    var(--sw-line) 42% 58%,
+    var(--sw-accent) 42% 58%,
     var(--sw-bg) 58% 100%
   );
 }

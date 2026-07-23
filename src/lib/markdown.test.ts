@@ -74,6 +74,12 @@ describe('blocksToText', () => {
       'a bold and italic word'
     );
   });
+
+  it('unescapes backslash-escaped markers to their literal chars', () => {
+    expect(blocksToText(parseContent('\\_\\_keep\\_\\_ and __drop__'))).toBe(
+      '__keep__ and drop'
+    );
+  });
 });
 
 describe('blocksToHtml', () => {
@@ -145,5 +151,30 @@ describe('blocksToHtml', () => {
   it('escapes HTML before applying inline markers', () => {
     const [block] = parseContent('**a < b**');
     expect(blocksToHtml([block])).toBe('<p><strong>a &lt; b</strong></p>');
+  });
+
+  it('renders escaped underscores literally instead of as italic', () => {
+    const [block] = parseContent('\\_\\_\\_how are you today\\_\\_\\_');
+    expect(blocksToHtml([block])).toBe('<p>___how are you today___</p>');
+  });
+
+  it('renders escaped asterisks literally instead of as bold', () => {
+    const [block] = parseContent('\\*\\*not bold\\*\\*');
+    expect(blocksToHtml([block])).toBe('<p>**not bold**</p>');
+  });
+
+  it('escapes markers without disturbing real markers elsewhere', () => {
+    const [block] = parseContent('\\_\\_literal\\_\\_ and __italic__');
+    expect(blocksToHtml([block])).toBe('<p>__literal__ and <em>italic</em></p>');
+  });
+
+  it('renders an escaped backslash as a single literal backslash', () => {
+    const [block] = parseContent('a \\\\ b');
+    expect(blocksToHtml([block])).toBe('<p>a \\ b</p>');
+  });
+
+  it('leaves a backslash before a non-escapable char untouched', () => {
+    const [block] = parseContent('a \\b c');
+    expect(blocksToHtml([block])).toBe('<p>a \\b c</p>');
   });
 });

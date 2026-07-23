@@ -74,7 +74,7 @@
 
   <label class="panel-checkbox">
     Published
-    <Toggle checked={isPublished} onchange={() => isPublished = !isPublished} label="Published" id="isPublished" />
+    <Toggle checked={isPublished} onchange={() => isPublished = !isPublished} label="Published" id="isPublished" name="isPublished" />
   </label>
 
   {#if error}<p class="panel-error">{error}</p>{/if}

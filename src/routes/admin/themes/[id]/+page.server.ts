@@ -25,17 +25,17 @@ export const actions: Actions = {
     const form = await request.formData();
     const name = form.get('name');
     const bg = form.get('bg');
-    const line = form.get('line');
+    const accent = form.get('accent');
     const ink = form.get('ink');
 
     if (typeof name !== 'string' || !name.trim()) {
       return fail(400, { error: 'Name is required.' });
     }
-    if (!isHexColor(bg) || !isHexColor(line) || !isHexColor(ink)) {
+    if (!isHexColor(bg) || !isHexColor(accent) || !isHexColor(ink)) {
       return fail(400, { error: 'Colors must be 6-digit hex values.' });
     }
 
-    await updateTheme(id, { name: name.trim(), bg, line, ink });
+    await updateTheme(id, { name: name.trim(), bg, accent, ink });
     redirect(303, '/admin/themes');
   },
 

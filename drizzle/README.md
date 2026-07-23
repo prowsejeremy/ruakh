@@ -15,6 +15,34 @@ them by hand.
 4. `npm run db:seed` fills reflections + the about page (themes are seeded in-schema
    as needed).
 
+## Collation version warning
+
+On startup Postgres may log:
+
+> `WARNING: database "ruakh" has no actual collation version, but a version was
+> recorded` (code `01000`, `CheckMyDatabase`)
+
+This means the collation library (glibc/ICU) version recorded when the database
+was created no longer matches the one present now — almost always because the
+Postgres base image was rebuilt and its `glibc` changed under the existing data
+volume. The risk it warns about is that a changed text sort order can invalidate
+B-tree indexes on text columns. ruakh's only text indexes are exact-match unique
+ones (`admins_email_idx`, `push_subscriptions_endpoint_idx`) and no query relies
+on locale-sensitive `ORDER BY text`, so the practical risk here is low.
+
+To clear it, connect to the database and accept the current library version:
+
+```sql
+ALTER DATABASE ruakh REFRESH COLLATION VERSION;
+REINDEX DATABASE ruakh;  -- belt-and-suspenders for the text indexes
+```
+
+**Dev:** simplest to just recreate the volume —
+`docker compose -f docker/compose-dev.yml down -v && … up`.
+
+**Production:** run the two statements above deliberately (prod has real data you
+don't want to regenerate); don't ignore the warning across a base-image bump.
+
 ## History
 
 The migration history was **squashed to a single baseline**

@@ -18,7 +18,7 @@
 
   <div class="panel-swatch-grid">
     {#each data.themes as t (t.id)}
-      <a class="panel-swatch" href="/admin/themes/{t.id}" style="--sw-bg: {t.bg}; --sw-line: {t.line};">
+      <a class="panel-swatch" href="/admin/themes/{t.id}" style="--sw-bg: {t.bg}; --sw-accent: {t.accent};">
         <span class="panel-swatch-preview"></span>
         <span class="panel-swatch-name">{t.name}</span>
       </a>

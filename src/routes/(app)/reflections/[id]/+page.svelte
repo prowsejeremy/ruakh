@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ReflectionScreen from '$lib/components/ReflectionScreen.svelte';
+  import ReflectionScreen from '$lib/components/ReflectionScreen-refined.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();

@@ -37,7 +37,7 @@
           var t = JSON.parse(localStorage.getItem("ruakh:theme"));
           if (t && t.bg) {
             setColor("bg", t.bg);
-            setColor("accent", t.line);
+            setColor("accent", t.accent || t.line); // `line` = pre-rename snapshots
             setColor("ink", t.ink);
             if (m) m.setAttribute("content", t.bg);
           }

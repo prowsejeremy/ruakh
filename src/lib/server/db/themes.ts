@@ -10,7 +10,7 @@ export async function getThemes(): Promise<ThemeRow[]> {
 export type NewTheme = {
   name: string;
   bg: string;
-  line: string;
+  accent: string;
   ink: string;
   sort?: number;
 };

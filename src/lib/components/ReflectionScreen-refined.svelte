@@ -106,14 +106,14 @@
      above the local {#if} blocks, and local transitions are skipped on
      ancestor changes. The (app) layout's persistent frame plus the reveal
      handoff (see transitions.ts) cover the in/out overlap during navigation. -->
-<section class:intro-entrance={introEntrance} out:reveal|global>
+<section class:intro-entrance={introEntrance} class="playground" out:reveal|global>
   {#if reflection}
     <!-- Only the active part is rendered; the key makes part changes (and new
          reflections) crossfade between the outgoing and incoming slide. -->
     <!-- Swipe is a convenience duplicate of the dot buttons, so the wrapper
          is not exposed as interactive. -->
     <div
-      class="slider"
+      class="slider scrollable"
       role="presentation"
       onpointerdown={onPointerDown}
       onpointermove={onPointerMove}
@@ -125,78 +125,62 @@
         <blockquote class="slide" transition:fade={{ duration: fadeMs() }}>
           <div class="reflection-content">
           <!-- `?? []` guards the render between a reflection change and the effect
-               resetting `active` (a shorter body could be indexed past its end).
-               Headings are demoted one level (the wordmark is the page heading). -->
+                resetting `active` (a shorter body could be indexed past its end).
+                Headings are demoted one level (the wordmark is the page heading). -->
           <!-- eslint-disable-next-line svelte/no-at-html-tags -- text is escaped in blocksToHtml -->
           {@html blocksToHtml(reflection.body[active] ?? [], { headingOffset: 1, blockClass: 'block' })}
           </div>
         </blockquote>
       {/key}
     </div>
-    {#if reflection.body.length > 1}
-      <div class="dots" role="group" aria-label="reflection parts" in:reveal|global>
-        {#each reflection.body as _, i (i)}
-          <button
-            type="button"
-            class="dot"
-            class:active={active === i}
-            aria-label={`part ${i + 1} of ${reflection.body.length}`}
-            aria-current={active === i}
-            onclick={() => show(i)}
-          ></button>
-        {/each}
-      </div>
-    {/if}
-    {#if credit}
-      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-      <div class="attribution" onclick={toggleAttribution} in:reveal|global>
-        {#if attribution == 'author'}
-          <small class="author" in:reveal={{y: 10}} out:fade>{credit}</small>
-        {:else if copyright && attribution == 'copyright'}
-          <small class="copyright" in:reveal={{ endOpacity: 0.5, y: 10 }} out:fade>{copyright}</small>
-        {/if}
-      </div>
-    {/if}
+    <div class="content reflection-meta">
+      {#if reflection.body.length > 1}
+        <div class="dots" role="group" aria-label="reflection parts" in:reveal|global>
+          {#each reflection.body as _, i (i)}
+            <button
+              type="button"
+              class="dot"
+              class:active={active === i}
+              aria-label={`part ${i + 1} of ${reflection.body.length}`}
+              aria-current={active === i}
+              onclick={() => show(i)}
+            ></button>
+          {/each}
+        </div>
+      {/if}
+      {#if credit}
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+        <div class="attribution" onclick={toggleAttribution} in:reveal|global>
+          {#if attribution == 'author'}
+            <small class="author" in:reveal={{y: 10}} out:fade>{credit}</small>
+          {:else if copyright && attribution == 'copyright'}
+            <small class="copyright" in:reveal={{ endOpacity: 0.5, y: 10 }} out:fade>{copyright}</small>
+          {/if}
+        </div>
+      {/if}
+    </div>
   {:else}
     <p class="empty" in:reveal|global>No reflection is available yet.</p>
   {/if}
 </section>
 
 <style>
-  section {
-    /* Fills the layout <main> (which already subtracts the header and actions
-       bar); slides are absolutely positioned, so long parts scroll internally
-       instead of growing the page. Pinned to main's full height (not flex: 1):
-       during a page swap the incoming page briefly shares the flex container,
-       and a shrinkable section would collapse mid-outro, clipping the slide. */
+  .playground {
+    height: 100%;
     flex: 0 0 100%;
-    display: flex;
-    flex-direction: column;
-    
-    gap: 1rem;
-    width: 100%;
-    max-width: 34rem;
-    margin: 0 auto;
+    gap: 0.5rem;
   }
   .slider {
-    flex: 1;
-    min-height: 0;
-    position: relative; /* crossfading slides stack absolutely inside */
+    width: 100%;
+    margin: auto;
+    padding-top: var(--app-gutter);
+    display: grid; /* all slides share one cell, so crossfading slides overlap */
     touch-action: pan-y; /* vertical scroll stays native; horizontal swipes reach us */
   }
   .slide {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1; /* every slide occupies the same cell (was absolute inset:0) */
+    min-height: 0; /* let the slide shrink to the track so overflow-y can scroll */
     display: flex;
-    /* a long part scrolls vertically inside its slide */
-    overflow: hidden;
-    overflow-y: auto;
-    
-    /* Hide scrollbar for IE, Edge, and Firefox */
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
 
     /* Blocks are injected via {@html}, so these selectors must be :global —
        Svelte does not scope styles onto @html output. */
@@ -214,6 +198,10 @@
       font-size: inherit;
       font-weight: 700;
     }
+  }
+
+  .reflection-meta {
+    width: 100%;
   }
 
   @keyframes block-fade-in {
@@ -252,9 +240,8 @@
   }
   .dots {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 0.25rem;
-    padding-block: 0.5rem;
   }
   .dot {
     width: 2rem;

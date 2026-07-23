@@ -9,7 +9,7 @@ const body = (...parts: string[]) => parts.map(parseContent);
 const base: ContentBundle = {
   reflections: [{ id: 1, body: body('a'), attribution: null, source: null, copyright: null }],
   pages: [{ uri: 'about', content: '# hi' }],
-  themes: [{ id: 1, name: 'Sunset', bg: '#f7a31a', line: '#f5350b', ink: '#000000', sort: 0 }],
+  themes: [{ id: 1, name: 'Sunset', bg: '#f7a31a', accent: '#f5350b', ink: '#000000', sort: 0 }],
   generatedAt: '2026-07-03T00:00:00Z'
 };
 

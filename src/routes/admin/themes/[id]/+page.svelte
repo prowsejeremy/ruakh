@@ -28,8 +28,8 @@
     </label>
 
     <label class="panel-field">
-      Line
-      <input type="color" name="line" value={data.theme.line} required />
+      Accent
+      <input type="color" name="accent" value={data.theme.accent} required />
     </label>
 
     <label class="panel-field">

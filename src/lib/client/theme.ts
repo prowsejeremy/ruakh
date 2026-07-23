@@ -15,9 +15,11 @@ export function loadTheme(): Theme {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const saved = JSON.parse(raw) as Partial<Theme>;
-      if (saved.id && saved.bg && saved.line && saved.ink) {
-        return { id: saved.id, name: saved.name ?? saved.id, bg: saved.bg, line: saved.line, ink: saved.ink };
+      const saved = JSON.parse(raw) as Partial<Theme> & { line?: string };
+      // `line` fallback reads snapshots written before the accent rename.
+      const accent = saved.accent ?? saved.line;
+      if (saved.id && saved.bg && accent && saved.ink) {
+        return { id: saved.id, name: saved.name ?? saved.id, bg: saved.bg, accent, ink: saved.ink };
       }
     }
   } catch {
@@ -31,8 +33,8 @@ export function applyTheme(theme: Theme): void {
   const s = document.documentElement.style;
   s.setProperty('--color-bg', theme.bg);
   s.setProperty('--color-bg-rgb', hexToRgb(theme.bg));
-  s.setProperty('--color-accent', theme.line);
-  s.setProperty('--color-accent-rgb', hexToRgb(theme.line));
+  s.setProperty('--color-accent', theme.accent);
+  s.setProperty('--color-accent-rgb', hexToRgb(theme.accent));
   s.setProperty('--color-ink', theme.ink);
   s.setProperty('--color-ink-rgb', hexToRgb(theme.ink));
   const meta = document.querySelector('meta[name="theme-color"]');
@@ -44,7 +46,7 @@ export function saveTheme(theme: Theme): void {
   try {
     localStorage.setItem(
       KEY,
-      JSON.stringify({ id: theme.id, name: theme.name, bg: theme.bg, line: theme.line, ink: theme.ink })
+      JSON.stringify({ id: theme.id, name: theme.name, bg: theme.bg, accent: theme.accent, ink: theme.ink })
     );
   } catch {
     /* persistence is a nicety */

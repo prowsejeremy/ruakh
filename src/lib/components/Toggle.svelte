@@ -11,12 +11,14 @@
     onchange,
     label,
     id,
+    name,
     disabled = false
   }: {
     checked: boolean;
     onchange: () => void;
     label: string;
     id?: string;
+    name?: string;
     disabled?: boolean;
   } = $props();
 </script>
@@ -24,6 +26,7 @@
 <span class="toggle" class:on={checked} class:disabled>
   <input
     {id}
+    {name}
     class="native"
     type="checkbox"
     role="switch"

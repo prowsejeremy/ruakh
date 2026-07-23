@@ -35,7 +35,7 @@ export const themes = pgTable('themes', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   bg: text('bg').notNull(),
-  line: text('line').notNull(),
+  accent: text('accent').notNull(),
   ink: text('ink').notNull(),
   sort: integer('sort').notNull().default(0)
 });

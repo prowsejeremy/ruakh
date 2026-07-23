@@ -44,7 +44,9 @@ export function parseContent(content: string): ContentBlock[] {
 
 /** Plain text of a block list — for search haystacks and card previews. */
 export function blocksToText(blocks: ContentBlock[]): string {
-  return blocks.map((b) => (b.text === null ? "" : stripInline(b.text))).join(" ");
+  return blocks
+    .map((b) => (b.text === null ? "" : stripInline(b.text)))
+    .join(" ");
 }
 
 export interface BlocksToHtmlOptions {
@@ -62,19 +64,51 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Inline formatting: `**bold**` → `<strong>`, `__italic__` → `<em>`. Escapes
- * HTML first (the markers survive escaping), then rewrites markers to tags.
+ * Backslash escaping for inline markers: `\*`, `\_`, `\\`. An escaped char is
+ * lifted out to a private-use sentinel *before* the marker regexes run so it
+ * can't be read as part of a `**`/`__` pair, then swapped back to its literal
+ * char afterwards. The sentinels are untouched by {@link escapeHtml} and the
+ * marker rewrites, and the restored literals (`* _ \`) need no HTML escaping.
+ */
+const ESCAPABLE = "\\*_";
+// Map each escapable char to a distinct PUA sentinel (0xE000+) and back.
+const toSentinel = new Map(
+  [...ESCAPABLE].map((ch, i) => [ch, String.fromCharCode(0xe000 + i)]),
+);
+const fromSentinel = new Map(
+  [...toSentinel].map(([ch, sentinel]) => [sentinel, ch]),
+);
+const SENTINELS = new RegExp(`[${[...fromSentinel.keys()].join("")}]`, "g");
+
+function protectEscapes(text: string): string {
+  return text.replace(/\\([\\*_])/g, (_m, ch: string) => toSentinel.get(ch)!);
+}
+
+function restoreEscapes(text: string): string {
+  return text.replace(SENTINELS, (ch) => fromSentinel.get(ch)!);
+}
+
+/**
+ * Inline formatting: `**bold**` → `<strong>`, `__italic__` → `<em>`. Pulls
+ * backslash-escaped markers out first, escapes HTML (the markers survive
+ * escaping), rewrites markers to tags, then restores the escaped literals.
  * Bold before italic so either nesting order (`**__x__**`/`__**x**__`) resolves.
  */
 function inlineToHtml(text: string): string {
-  return escapeHtml(text)
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/__(.+?)__/g, "<em>$1</em>");
+  return restoreEscapes(
+    escapeHtml(protectEscapes(text))
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/__(.+?)__/g, "<em>$1</em>"),
+  );
 }
 
-/** Drop inline `**`/`__` markers, leaving the text they wrapped. */
+/** Drop inline `**`/`__` markers, leaving the text they wrapped; escapes too. */
 function stripInline(text: string): string {
-  return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
+  return restoreEscapes(
+    protectEscapes(text)
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/__(.+?)__/g, "$1"),
+  );
 }
 
 /**

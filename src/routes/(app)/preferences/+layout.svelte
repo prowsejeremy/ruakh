@@ -5,6 +5,7 @@
   import Icon from '$lib/components/Icon.svelte';
   import BackButton from '$lib/components/BackButton.svelte';
   import { reveal } from '$lib/transitions';
+  import ContentWrapper from '$lib/components/ContentWrapper.svelte';
 
   let { children } = $props();
 
@@ -51,18 +52,22 @@
      swapped on sub-navigation, so the header's in/out reveal fires just once,
      when the whole preferences section is entered or closed. -->
 
-<div class="panel-main" out:reveal|global>
-  <header class="panel-header" in:reveal|global>
-    {#if isIndex}
-      <h1 class="panel-title">{title}</h1>
-      <a class="panel-close" href={exitRoute} aria-label="close preferences">
-        <Icon name="close" background="var(--color-accent)" size="100%" />
-      </a>
-    {:else}
-      <BackButton background="var(--color-accent)" />
-      <h1 class="panel-title">{title}</h1>
-    {/if}
-  </header>
+<ContentWrapper>
+  <div class="panel-main" out:reveal|global>
+    <header class="panel-header" in:reveal|global>
+      {#if isIndex}
+        <h1 class="panel-title">{title}</h1>
+        <a class="panel-close" href={exitRoute} aria-label="close preferences">
+          <Icon name="close" background="var(--color-accent)" size="100%" />
+        </a>
+      {:else}
+        <BackButton background="var(--color-accent)" />
+        <h1 class="panel-title">{title}</h1>
+      {/if}
+    </header>
 
-  {@render children()}
-</div>
+    <div class="panel-body" out:reveal|global>
+      {@render children()}
+    </div>
+  </div>
+</ContentWrapper>

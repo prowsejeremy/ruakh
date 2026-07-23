@@ -16,6 +16,12 @@
     // Hide the actions bar on the preferences screen, which is a modal overlay
     actionsBar.visible = !page.url.pathname.includes('preferences');
   });
+
+  $effect(() => {
+    // The intro is a once-per-page-load experience, so it should not re-run
+    // when the visitor returns from admin. It also gates the header wordmark.
+    intro.done ||= page.url.pathname !== '/';
+  });
 </script>
 
 <!-- zIndex -1: a fixed layer at z-index 0 would paint over in-flow content. -->
@@ -44,13 +50,12 @@
   main {
     display: flex;
     flex-direction: column;
+    align-items: center;
     height: calc(100vh - var(--app-header-height) - var(--app-actions-height));
     height: calc(100dvh - var(--app-header-height) - var(--app-actions-height));
-    overflow: hidden;
-    overflow-y: auto;
-    transition: height 600ms var(--transition-timing) 300ms; /* matches .lines in PatternBackground */
-    max-width: 34rem;
-    padding: 0 var(--app-gutter);
-    margin: 0 auto;
+    
+    /* !IMPORTANT! matches the reveal / fade animations, prevents the body from jumping
+      when the bar appears or disappears (e.g. on /preferences) */
+    transition: height 300ms ease-in-out 500ms;
   }
 </style>

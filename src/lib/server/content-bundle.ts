@@ -7,7 +7,7 @@ export type BundleTheme = {
   id: number;
   name: string;
   bg: string;
-  line: string;
+  accent: string;
   ink: string;
   sort: number;
 };
@@ -46,7 +46,7 @@ export async function buildContentBundle(now: Date): Promise<ContentBundle> {
       id: t.id,
       name: t.name,
       bg: t.bg,
-      line: t.line,
+      accent: t.accent,
       ink: t.ink,
       sort: t.sort
     })),

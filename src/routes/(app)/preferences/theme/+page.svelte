@@ -38,13 +38,13 @@
     const snap = loadTheme();
     const byId = themeList.find((t) => String(t.id) === snap.id);
     const byColors = themeList.find(
-      (t) => t.bg === snap.bg && t.line === snap.line && t.ink === snap.ink
+      (t) => t.bg === snap.bg && t.accent === snap.accent && t.ink === snap.ink
     );
     activeThemeId = byId || byColors ? String((byId ?? byColors)!.id) : snap.id;
   }
 
   function toTheme(t: (typeof data.themes)[number]): Theme {
-    return { id: String(t.id), name: t.name, bg: t.bg, line: t.line, ink: t.ink };
+    return { id: String(t.id), name: t.name, bg: t.bg, accent: t.accent, ink: t.ink };
   }
 
   function chooseTheme(t: (typeof data.themes)[number]) {
@@ -68,7 +68,7 @@
     >
       <span
         class="panel-swatch-preview"
-        style="--sw-bg: {t.bg}; --sw-line: {t.line};"
+        style="--sw-bg: {t.bg}; --sw-accent: {t.accent};"
       ></span>
       <span class="panel-swatch-name">{t.name}</span>
     </button>

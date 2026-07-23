@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import IntroScreen from '$lib/components/IntroScreen.svelte';
-  import ReflectionScreen from '$lib/components/ReflectionScreen.svelte';
+  import ReflectionScreen from '$lib/components/ReflectionScreen-refined.svelte';
   import InstallHint from '$lib/components/InstallHint.svelte';
   import { recordHistory } from '$lib/client/storage';
   import { intro } from '$lib/client/intro.svelte';

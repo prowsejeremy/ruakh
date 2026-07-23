@@ -1,5 +1,6 @@
 <script lang="ts">
   import { applyTheme } from '$lib/client/theme';
+  import ContentWrapper from '$lib/components/ContentWrapper.svelte';
   import { ADMIN_THEME } from '$lib/themes';
 
   let { children } = $props();
@@ -17,7 +18,9 @@
 </script>
 
 <main class="admin">
-  {@render children()}
+  <ContentWrapper>
+    {@render children()}
+  </ContentWrapper>
 </main>
 
 <style>
@@ -25,16 +28,11 @@
      renders here (it belongs to the (app) group's layout), so the base theme
      paints a flat dark background. This wrapper just reserves the viewport
      height and scopes the admin-only "+" button. */
-  .admin {
-    /* The global wordmark header (root layout) sits above this wrapper. */
-    height: calc(100vh - var(--app-header-height));
-    height: calc(100dvh - var(--app-header-height));
-    max-width: 34rem;
-    padding: 0 var(--app-gutter) var(--app-gutter);
-    margin: 0 auto;
+  main.admin {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--app-gutter);
+    height: calc(100vh - var(--app-header-height));
+    height: calc(100dvh - var(--app-header-height));
   }
 </style>

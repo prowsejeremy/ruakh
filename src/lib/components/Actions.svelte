@@ -73,7 +73,7 @@
   </a>
 {/snippet}
 
-<div class="actions" in:reveal out:fade>
+<div class="actions" in:reveal|global out:fade>
   <!-- Reflection save button -->
   {#if save && save.id}
     <button type="button" aria-label={saved ? 'saved' : 'save'} onclick={toggleSave} class="save action" in:fade out:fade>

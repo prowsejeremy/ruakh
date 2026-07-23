@@ -152,12 +152,12 @@ const pageSeed = [
 ];
 
 const themeSeed = [
-  { name: 'Sunset', bg: '#f7a31a', line: '#f5350b', ink: '#000000', sort: 0 },
-  { name: 'Coral', bg: '#571df7', line: '#e2187a', ink: '#f5fafa', sort: 0 },
-  { name: 'Forest', bg: '#261703', line: '#134931', ink: '#eff5f2', sort: 0 },
-  { name: 'Flash', bg: '#f1eee4', line: '#ffffff', ink: '#1d1c1b', sort: 0 },
-  { name: 'Ocean', bg: '#113757', line: '#276d8b', ink: '#ffffff', sort: 1 },
-  { name: 'Midnight', bg: '#1f1f1f', line: '#292929', ink: '#ffffff', sort: 2 }
+  { name: 'Sunset', bg: '#f7a31a', accent: '#f5350b', ink: '#000000', sort: 0 },
+  { name: 'Coral', bg: '#571df7', accent: '#e2187a', ink: '#f5fafa', sort: 0 },
+  { name: 'Forest', bg: '#261703', accent: '#134931', ink: '#eff5f2', sort: 0 },
+  { name: 'Flash', bg: '#f1eee4', accent: '#ffffff', ink: '#1d1c1b', sort: 0 },
+  { name: 'Ocean', bg: '#113757', accent: '#276d8b', ink: '#ffffff', sort: 1 },
+  { name: 'Midnight', bg: '#1f1f1f', accent: '#292929', ink: '#ffffff', sort: 2 }
 ];
 
 async function main() {
