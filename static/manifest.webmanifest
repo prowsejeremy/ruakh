@@ -10,7 +10,17 @@
   "theme_color": "#f7a31a",
   "icons": [
     {
-      "src": "/app-icons/ruakh.svg",
+      "src": "/app-icons/ruakh-app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/app-icons/ruakh-app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/app-icons/ruakh-app-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }

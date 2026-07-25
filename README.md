@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://ruakh.jpd.nz" target="_blank" align="center">
-    <img src="static/app-icons/ruakh.svg" alt="Ruakh app icon" width="96" height="96">
+    <img src="static/app-icons/ruakh-app-icon.svg" alt="Ruakh app icon" width="96" height="96">
   </a>
 </p>
 

@@ -7,6 +7,7 @@
   const DISMISS_KEY = 'ruakh:install-dismissed';
 
   let isIos = $state(false);
+  let isFirefoxAndroid = $state(false);
   let standalone = $state(true); // assume installed until the browser says otherwise
   let dismissed = $state(true); // assume dismissed until read — avoids a flash
 
@@ -21,6 +22,9 @@
     const ua = navigator.userAgent;
     isIos =
       /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    // Gecko never fires `beforeinstallprompt`, so Firefox on Android needs a
+    // manual nudge like iOS does (its install lives in the browser menu).
+    isFirefoxAndroid = /android/i.test(ua) && /firefox/i.test(ua);
     try {
       dismissed = localStorage.getItem(DISMISS_KEY) === '1';
     } catch {
@@ -43,17 +47,21 @@
   }
 </script>
 
-{#if !standalone && !dismissed && (installEvent || isIos)}
+{#if !standalone && !dismissed && (installEvent || isIos || isFirefoxAndroid)}
   <aside aria-label="Install ruakh" in:reveal|global out:reveal|global>
     {#if installEvent}
       <button type="button" class="prompt-content install-button" onclick={install}>
-        <img class="app-icon" src="/app-icons/ruakh.svg" alt="Ruakh App Icon" width="32" height="32" />
+        <img class="app-icon" src="/app-icons/ruakh-app-icon.svg" alt="Ruakh App Icon" width="32" height="32" />
         <span>Add ruakh to your home screen</span>
       </button>
     {:else}
       <div class="prompt-content">
-        <img class="app-icon" src="/app-icons/ruakh.svg" alt="Ruakh App Icon" width="32" height="32" />
-        <p>To keep ruakh close: Share &gt; Add to Home Screen</p>
+        <img class="app-icon" src="/app-icons/ruakh-app-icon.svg" alt="Ruakh App Icon" width="32" height="32" />
+        {#if isIos}
+          <p>To keep ruakh close: Share &gt; Add to Home Screen</p>
+        {:else}
+          <p>To keep ruakh close: browser menu &gt; Add to Home Screen</p>
+        {/if}
       </div>
     {/if}
     <button type="button" class="close" aria-label="Dismiss" onclick={dismiss}>

@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={'/app-icons/ruakh.svg'} />
+  <link rel="icon" href={'/app-icons/ruakh-app-icon.svg'} />
   <!-- Preload the two faces used at first paint (wordmark + reflection body); crossorigin is required for font preloads. -->
   <link rel="preload" href="/fonts/PT-Serif/PTSerifBold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <link rel="preload" href="/fonts/PT-Serif/PTSerif.woff2" as="font" type="font/woff2" crossorigin="anonymous" />

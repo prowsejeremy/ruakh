@@ -89,8 +89,8 @@ sw.addEventListener("push", (event) => {
   event.waitUntil(
     sw.registration.showNotification(data.title ?? "ruakh", {
       body: data.body ?? "Today’s reflection is waiting.",
-      icon: "/app-icons/ruakh.svg",
-      badge: "/app-icons/ruakh.svg",
+      icon: "/app-icons/ruakh-app-icon-512.png",
+      badge: "/app-icons/ruakh-app-icon-512.png",
       tag: "ruakh-daily", // delayed deliveries collapse into one gentle nudge
       data: { url: "/" },
     }),
