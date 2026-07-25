@@ -3,11 +3,13 @@
   --color-bg: #f7a31a; /* orange field (PatternBackground paints the viewport; this is the fallback) */
   --color-accent: #f5350b; /* red-orange flowing lines */
   --color-ink: #131313; /* near-black text */
+  --color-input-highlight: #10e260; /* green for input focus, hover, and selection */
   /* Each color's "r, g, b" companion for rgba(var(--color-*-rgb), a). Kept in
      sync by theme.ts applyTheme + app.html's pre-paint script. */
   --color-bg-rgb: 247, 163, 26;
   --color-accent-rgb: 245, 53, 11;
   --color-ink-rgb: 19, 19, 19;
+  --color-input-highlight-rgb: 16, 226, 96;
 
   --font-display: "PT Serif", Georgia, "Times New Roman", serif;
 
@@ -101,4 +103,22 @@ hr {
     overflow-x: auto;
     overflow-y: hidden;
   }
+}
+
+/* Global class for the filled text button — the app's one CTA look. Works on
+   <button> and <a>; pair with a local class for deltas (width, alignment),
+   e.g. panel.css's .panel-save. */
+.button {
+  display: inline-block;
+  background: var(--color-ink);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 2.5rem;
+  font: inherit;
+  font-size: var(--text-body);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
 }

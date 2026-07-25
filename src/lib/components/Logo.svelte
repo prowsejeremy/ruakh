@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import RuakhLogo from '../../../static/ruakh-logo.svg?raw';
+  import RuakhLogo from '$lib/assets/ruakh-logo.svg?raw';
 </script>
 
 <script lang="ts">

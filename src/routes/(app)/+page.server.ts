@@ -1,6 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { getPublishedReflections, toReflectionView } from '$lib/server/db/reflections';
+import { getPage } from '$lib/server/db/pages';
 import { selectDailyReflection, utcDateKey } from '$lib/daily';
+import { parseContent } from '$lib/markdown';
 import type { ReflectionView } from '$lib/types';
 
 export const load: PageServerLoad = async () => {
@@ -12,5 +14,13 @@ export const load: PageServerLoad = async () => {
   // Deliberately trimmed to what the screen renders (id included for
   // Plan 3's on-device favorites). Copyright stays server-side for now.
   const reflection: ReflectionView | null = today ? toReflectionView(today) : null;
-  return { reflection, dateKey: utcDateKey(now) };
+  // The about page rides along for the one-time onboarding screen. Always
+  // included (small): whether onboarding shows is a device-local flag the
+  // server can't see. No about page in the DB → onboarding is skipped.
+  const aboutPage = await getPage('about');
+  return {
+    reflection,
+    dateKey: utcDateKey(now),
+    about: aboutPage ? parseContent(aboutPage.content) : null
+  };
 };

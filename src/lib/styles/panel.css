@@ -122,7 +122,7 @@ p.panel-blurb {
   background: none;
   border: 1px solid var(--color-ink);
   border-radius: 0.5rem;
-  padding: 0.9rem 1rem;
+  padding: 0.6rem 1rem;
   font: inherit;
   font-size: var(--text-body);
   color: inherit;
@@ -164,7 +164,7 @@ p.panel-blurb {
 
   &:focus {
     outline: none;
-    border: 1px solid #10e260;
+    border: 1px solid var(--color-input-highlight);
   }
 }
 
@@ -211,16 +211,9 @@ p.panel-blurb {
   font-size: var(--text-small);
 }
 
+/* Deltas on the global .button base (app.css) — always used as "button panel-save". */
 .panel-save {
-  background: var(--color-ink);
-  color: var(--color-bg);
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  font: inherit;
-  font-size: var(--text-body);
-  font-weight: 700;
-  cursor: pointer;
+  padding-inline: 1rem;
   width: 100%;
 }
 

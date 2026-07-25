@@ -56,7 +56,7 @@
       opacity: 0.5;
     }
     &.on .track {
-      background: #10e260;
+      background: var(--color-input-highlight);
     }
     &.on .knob {
       background: #f5f3ee;

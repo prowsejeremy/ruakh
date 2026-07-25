@@ -28,7 +28,7 @@
        immediately, SSR included. Once mounted it survives client-side
        navigation, so the morph never replays. -->
   {#if intro.done || page.url.pathname !== '/'}
-    <a href="/" in:reveal>
+    <a href="/" class="logo-home-link" in:reveal>
       <Logo size={'5rem'} />
     </a>
   {/if}
@@ -45,5 +45,19 @@
     align-items: center;
     justify-content: center;
     min-height: var(--app-header-height);
+  }
+  .logo-home-link {
+    opacity: 1;
+    transition: opacity 300ms var(--transition-timing);
+
+    &:hover {
+      opacity: 0.4;
+    }
+    
+    &:focus {
+      outline: 2px solid var(--color-input-highlight);
+      outline-offset: 0.25rem;
+      border-radius: 0.1rem;
+    }
   }
 </style>

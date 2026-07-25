@@ -39,7 +39,7 @@
 
     {#if form?.error}<p class="panel-error">{form.error}</p>{/if}
 
-    <button type="submit" class="panel-save">Save</button>
+    <button type="submit" class="button panel-save">Save</button>
   </form>
 
   <form

@@ -36,10 +36,10 @@
       again:
     </p>
     <p class="panel-card-title">{form.generatedPassword}</p>
-    <a class="panel-save" href="/admin/users">Done</a>
+    <a class="button panel-save" href="/admin/users">Done</a>
   {:else if form?.created}
     <p class="panel-blurb">Admin created for <strong>{form.email}</strong>.</p>
-    <a class="panel-save" href="/admin/users">Done</a>
+    <a class="button panel-save" href="/admin/users">Done</a>
   {:else}
     <form method="POST" action="?/create" use:enhance>
       <label class="panel-field">
@@ -64,7 +64,7 @@
 
       {#if form?.error}<p class="panel-error">{form.error}</p>{/if}
 
-      <button type="submit" class="panel-save">Save</button>
+      <button type="submit" class="button panel-save">Save</button>
     </form>
   {/if}
 </section>

@@ -79,7 +79,7 @@
 
   {#if error}<p class="panel-error">{error}</p>{/if}
 
-  <button type="submit" class="panel-save">Save</button>
+  <button type="submit" class="button panel-save">Save</button>
 </form>
 
 <style>

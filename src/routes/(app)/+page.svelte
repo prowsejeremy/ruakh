@@ -3,9 +3,12 @@
   import { browser } from '$app/environment';
   import IntroScreen from '$lib/components/IntroScreen.svelte';
   import ReflectionScreen from '$lib/components/ReflectionScreen-refined.svelte';
+  import OnboardingScreen from '$lib/components/OnboardingScreen.svelte';
   import InstallHint from '$lib/components/InstallHint.svelte';
   import { recordHistory } from '$lib/client/storage';
   import { intro } from '$lib/client/intro.svelte';
+  import { actionsBar } from '$lib/client/actions-bar.svelte';
+  import { loadUserSettings, saveUserSettings } from '$lib/client/user-settings';
   import { refreshContentBundle, getOfflineDailyReflection } from '$lib/client/content';
   import { utcDateKey } from '$lib/daily';
   import type { ReflectionView } from '$lib/types';
@@ -15,6 +18,22 @@
   // Play the intro once per full page load — not on every client-side return
   // to `/`. `intro.done` also gates the root layout's header wordmark.
   const showIntro = $derived(!intro.done);
+  // One-time onboarding: after the intro, first-time visitors see the about
+  // page's content before their first reflection. `intro.onboarded` is seeded
+  // from the device-local `ruakh:user` object; skipped when no about page exists.
+  const showOnboarding = $derived(intro.done && !intro.onboarded && data.about !== null);
+
+  function dismissOnboarding() {
+    saveUserSettings({ ...loadUserSettings(), onboarded: true });
+    intro.onboarded = true;
+  }
+
+  // Hide the actions bar while onboarding shows (same mechanism as /breathe) so
+  // the dismiss button is the single path forward; navigating away re-runs the
+  // layout's pathname effect, which restores the bar.
+  $effect(() => {
+    actionsBar.visible = !showOnboarding;
+  });
 
   // The offline-recomputed reflection overrides the SSR one when the SW served a
   // stale (past-day) cached page — the app stays correct offline, indefinitely.
@@ -58,6 +77,8 @@
 
 {#if showIntro}
   <IntroScreen oncomplete={() => (intro.done = true)} />
+{:else if showOnboarding}
+  <OnboardingScreen blocks={data.about!} ondismiss={dismissOnboarding} />
 {:else}
   <ReflectionScreen reflection={shownReflection} />
   <InstallHint />

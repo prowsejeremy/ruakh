@@ -24,8 +24,8 @@
   const TOTAL_CYCLES = 14; // full box-breathing cycles before the exercise ends
 
   const INTRO_COPY =
-    '<p>The Hebrew word for "breath" or "soul". It literally means the inhalation and exhalation of air.</p>' +
-    '<p>Slow down and make use of the following breathing exercise to focus on that which sustains you:</p>' +
+    '<p><em>The Hebrew word for "breath" or "soul". It literally means the inhalation and exhalation of air.</em></p>' +
+    '<p>Focusing on our breathing is a great way to center ourselves, mentally, emotionally, physically and spiritually. The following exercise will guide you through a series of breathing steps. So slow down, pause, and focus on that which sustains you:</p>' +
     '<div class="breathe-instructions">' +
     '<p class="step"><span class="marker">1</span><span class="text">Breathe <em>in</em> through your nose.</span></p>' +
     '<p class="step"><span class="marker">2</span><span class="text">Pause</span></p>' +
@@ -35,8 +35,7 @@
     '</div>' +
     '<p>The exercise will continue for 3 minutes, but feel free to stop at any time.</p>';
   const END_COPY =
-    '<p>We hope you enjoyed taking a moment to pause and breathe. As you go, may you take ' +
-    'with you the sustaining breath of your loving Father.</p>';
+    '<p>We hope you enjoyed taking this moment to pause just be. As you go, may you <em>nasham</em> (breathe in) the <em>ruakh</em> (breath / spirit) of your Creator and loving Father.</p>';
 
   // Box breathing. Each step reveals its cue, waits for that reveal to finish,
   // then animates the circle to `state` over STEP_MS before advancing. The four
@@ -125,7 +124,7 @@
   }
 
   function tickCountdown() {
-    if (count > 1) {
+    if (phase === 'countdown' && count > 1) {
       wait(1000, () => {
         count -= 1;
         tickCountdown();
@@ -133,6 +132,7 @@
     } else {
       wait(1000, () => {
         phase = 'breathing';
+        audio?.start();
         runStep(0);
       });
     }
@@ -149,9 +149,6 @@
     phase = 'countdown';
     wait(1000, () => {
       tickCountdown();
-      wait(1000, () => {
-        audio?.start();
-      });
     });
   }
 
@@ -170,7 +167,7 @@
       backgroundSrc,
       cueSrcs: { inhale: inhaleSrc, pause: null, exhale: exhaleSrc }
     });
-    // audio.setMusicEnabled(musicOn);
+    audio.setMusicEnabled(musicOn);
     audio.setGuideEnabled(guideOn);
     return () => {
       alive = false;
@@ -195,7 +192,7 @@
         <small>noun; from the verb "nasham"</small>
       </div>
       <p class="intro-copy">{@html copy}</p>
-      <button class="intro-start" onclick={start}>{action}</button>
+      <button class="button" onclick={start}>{action}</button>
     </div>
   </section>
 {/snippet}
@@ -317,18 +314,6 @@
       margin-bottom: 1rem;
     }
   }
-  .intro-start {
-    background: var(--color-ink);
-    color: var(--color-bg);
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.75rem 2.5rem;
-    font: inherit;
-    font-size: var(--text-body);
-    font-weight: 700;
-    cursor: pointer;
-  }
-
   /* This markup arrives via {@html INTRO_COPY}, so the compiler can't stamp it
      with the scope hash. Bound the rules to .intro-copy (a real, scoped element)
      and mark the injected descendants :global so they actually match. */

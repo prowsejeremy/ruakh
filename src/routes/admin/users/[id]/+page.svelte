@@ -35,7 +35,7 @@
     {#if form?.emailError}<p class="panel-error">{form.emailError}</p>{/if}
     {#if form?.emailUpdated}<p class="panel-blurb">Email updated.</p>{/if}
 
-    <button type="submit" class="panel-save">Save email</button>
+    <button type="submit" class="button panel-save">Save email</button>
   </form>
 
   {#if showPassword}
@@ -73,7 +73,7 @@
       {#if form?.passwordError}<p class="panel-error">{form.passwordError}</p>{/if}
       {#if form?.passwordChanged}<p class="panel-blurb">Password changed.</p>{/if}
 
-      <button type="submit" class="panel-save" disabled={mismatch}>Change password</button>
+      <button type="submit" class="button panel-save" disabled={mismatch}>Change password</button>
     </form>
   {:else}
     <button type="button" class="panel-link-btn" onclick={() => (showPassword = true)}>

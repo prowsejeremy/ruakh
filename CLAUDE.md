@@ -106,7 +106,7 @@ Public/visitor:
 
 | Route | Load / behaviour |
 |---|---|
-| `/` | SSRs today's pick; client overrides with offline recompute + records history |
+| `/` | SSRs today's pick (+ the about page's blocks); client overrides with offline recompute + records history. First visit only: after the intro, `OnboardingScreen` shows the about content until dismissed (`onboarded` flag in `ruakh:user` localStorage; skipped if no about page) |
 | `/reflections/[id]` | Single reflection, **published-only** (404s drafts so ids can't be enumerated); `cache-control: no-cache` |
 | `/[uri]` | DB-backed markdown pages (e.g. `/about`); 404 if missing; `no-cache` |
 | `/preferences`, `/preferences/{device,history,saved,theme}` | Client-only device settings (mostly no server load; `theme` has one for SSR themes, and the main page has one that SSRs page links — pages with `linkLocation` `menu`/`footer` render there, falling back to the cached bundle offline) |
@@ -156,7 +156,8 @@ Shared library (`src/lib/`):
 | `client/push.ts` | browser push plumbing (`enableReminder`/`disableReminder`/…); never throws |
 | `client/install.svelte.ts` | `installState` — captures `beforeinstallprompt` early |
 | `client/password.ts` | `randomPassword(len=24)` — `A–Z a–z 0–9` generator for the admin create-user "Generate" button (client-side) |
-| `client/intro.svelte.ts` | `intro.done` — shared splash-complete flag |
+| `client/intro.svelte.ts` | `intro` — shared `done` (splash-complete) + `onboarded` (seeded from `ruakh:user`) flags |
+| `client/user-settings.ts` | `loadUserSettings`/`saveUserSettings` — device-local `ruakh:user` object (localStorage): `{ onboarded }` |
 | `client/actions-bar.svelte.ts` | `actionsBar` — shared `{ visible, reflection }` for the global Actions bar (set the save target; hide the bar on modal/overlay screens). Transient, browser-only |
 | `client/background.svelte.ts` | `patternBackground` — shared `{ visible }` flag for the `PatternBackground` line layer (screens fade the lines out, e.g. `/breathe`). Transient, browser-only |
 
@@ -182,14 +183,19 @@ Top-level (`src/`): `hooks.server.ts` (authz chokepoint + push/session interval)
 
 Components (`src/lib/components/`): `ReflectionScreen` (daily slides display) ·
 `Actions` (favorite/save bar, uses `storage.ts`) · `IntroScreen` (splash w/ morphing
-wordmark) · `LoadingScreen` · `Logo` · `Icon` · `BackButton` · `Reveal` (wraps
+wordmark) · `OnboardingScreen` (one-time about content + dismiss, home page only) ·
+`PageContent` (shared markdown-page renderer + typography, used by `/[uri]` + onboarding) · `LoadingScreen` · `Logo` · `Icon` · `BackButton` · `Reveal` (wraps
 `transitions.reveal`) · `PatternBackground` (animated line bg, uses `pattern.ts`) ·
 `InstallHint` (PWA install) · `Toggle` (checkbox switch) · `admin/ReflectionForm`
 (shared create/edit form) · `admin/MarkdownHelp`.
 
 Assets: `Icon` inlines `static/icons/*` (currentColor), `Logo` imports
 `ruakh-logo.svg?raw`; `static/{icons,app-icons,fonts}/` + `manifest.webmanifest`;
-styles `src/lib/styles/{app,fonts,panel}.css` and PT-Serif fonts loaded in the root layout.
+styles `src/lib/styles/{app,fonts,panel}.css` and PT-Serif fonts loaded in the root
+layout. app.css defines the global utility classes `.playground`, `.scrollable`, and
+`.button` — the one filled CTA look for `<button>`/`<a>` app-wide; local classes add
+deltas only (e.g. panel.css's `.panel-save` = full-width + tighter padding, always
+written `class="button panel-save"`).
 
 ### Environment
 

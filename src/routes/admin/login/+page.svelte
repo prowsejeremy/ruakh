@@ -22,7 +22,7 @@
       <input type="password" name="password" required autocomplete="current-password" />
     </label>
     {#if form?.error}<p class="error">{form.error}</p>{/if}
-    <button type="submit" class="panel-save">Sign In</button>
+    <button type="submit" class="button panel-save">Sign In</button>
   </form>
 </section>
 
