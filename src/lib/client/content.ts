@@ -1,5 +1,6 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import { selectDailyReflection } from '../daily';
+import { groupPageLinks, type PageLink } from '../page-links';
 import type { ReflectionView } from '../types';
 import type { ContentBundle } from '../server/content-bundle';
 
@@ -43,6 +44,11 @@ export async function getOfflineDailyReflection(date: Date): Promise<ReflectionV
   const bundle = await loadBundle();
   if (!bundle) return null;
   return selectDailyReflection(bundle.reflections, date);
+}
+
+/** Preferences-screen page links when offline (server SSR is preferred online). */
+export async function getCachedPageLinks(): Promise<{ menu: PageLink[]; footer: PageLink[] }> {
+  return groupPageLinks((await loadBundle())?.pages ?? []);
 }
 
 /** Themes for the preferences theme picker when offline (server SSR is preferred online). */

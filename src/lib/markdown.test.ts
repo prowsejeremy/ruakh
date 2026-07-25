@@ -80,6 +80,12 @@ describe('blocksToText', () => {
       '__keep__ and drop'
     );
   });
+
+  it('strips link syntax down to the link text', () => {
+    expect(blocksToText(parseContent('visit [jpd.nz](https://jpd.nz) today'))).toBe(
+      'visit jpd.nz today'
+    );
+  });
 });
 
 describe('blocksToHtml', () => {
@@ -176,5 +182,67 @@ describe('blocksToHtml', () => {
   it('leaves a backslash before a non-escapable char untouched', () => {
     const [block] = parseContent('a \\b c');
     expect(blocksToHtml([block])).toBe('<p>a \\b c</p>');
+  });
+
+  it('renders [text](url) as an anchor', () => {
+    const [block] = parseContent('visit [jpd.nz](https://jpd.nz) today');
+    expect(blocksToHtml([block])).toBe(
+      '<p>visit <a href="https://jpd.nz">jpd.nz</a> today</p>'
+    );
+  });
+
+  it('renders a relative link', () => {
+    const [block] = parseContent('see [about](/about)');
+    expect(blocksToHtml([block])).toBe('<p>see <a href="/about">about</a></p>');
+  });
+
+  it('renders links inside headings', () => {
+    const [block] = parseContent('# a [linked](https://jpd.nz) heading');
+    expect(blocksToHtml([block])).toBe(
+      '<h1>a <a href="https://jpd.nz">linked</a> heading</h1>'
+    );
+  });
+
+  it('renders bold inside link text', () => {
+    const [block] = parseContent('[**bold** link](https://jpd.nz)');
+    expect(blocksToHtml([block])).toBe(
+      '<p><a href="https://jpd.nz"><strong>bold</strong> link</a></p>'
+    );
+  });
+
+  it('does not italicise underscores inside a link URL', () => {
+    const [block] = parseContent('[x](https://jpd.nz/__page__) and [y](https://jpd.nz/__more__)');
+    expect(blocksToHtml([block])).toBe(
+      '<p><a href="https://jpd.nz/__page__">x</a> and <a href="https://jpd.nz/__more__">y</a></p>'
+    );
+  });
+
+  it('handles multiple links in one block', () => {
+    const [block] = parseContent('[one](https://a.nz) and [two](https://b.nz)');
+    expect(blocksToHtml([block])).toBe(
+      '<p><a href="https://a.nz">one</a> and <a href="https://b.nz">two</a></p>'
+    );
+  });
+
+  it('leaves bare bracketed text without a URL untouched', () => {
+    const [block] = parseContent('just [a note] here');
+    expect(blocksToHtml([block])).toBe('<p>just [a note] here</p>');
+  });
+
+  it('does not linkify unsafe URL schemes', () => {
+    const [block] = parseContent('[click](javascript:alert(1))');
+    expect(blocksToHtml([block])).toBe('<p>[click](javascript:alert(1))</p>');
+  });
+
+  it('encodes double quotes in the URL so the href cannot be broken out of', () => {
+    const [block] = parseContent('[x](https://jpd.nz/"quote)');
+    expect(blocksToHtml([block])).toBe(
+      '<p><a href="https://jpd.nz/%22quote">x</a></p>'
+    );
+  });
+
+  it('renders an escaped opening bracket literally instead of as a link', () => {
+    const [block] = parseContent('\\[not](https://jpd.nz)');
+    expect(blocksToHtml([block])).toBe('<p>[not](https://jpd.nz)</p>');
   });
 });

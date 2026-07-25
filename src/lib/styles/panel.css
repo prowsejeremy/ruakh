@@ -150,6 +150,7 @@ p.panel-blurb {
 .panel-field input[type="text"],
 .panel-field input[type="email"],
 .panel-field input[type="password"],
+.panel-field select,
 .panel-field textarea {
   font: inherit;
   font-size: var(--text-body);
@@ -165,6 +166,16 @@ p.panel-blurb {
     outline: none;
     border: 1px solid #10e260;
   }
+}
+
+.panel-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23fff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 0.5rem auto;
+  padding-right: 2rem; /* clear the icon */
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .panel-field input[type="color"] {

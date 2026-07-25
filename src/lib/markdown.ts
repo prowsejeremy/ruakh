@@ -64,13 +64,14 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Backslash escaping for inline markers: `\*`, `\_`, `\\`. An escaped char is
- * lifted out to a private-use sentinel *before* the marker regexes run so it
- * can't be read as part of a `**`/`__` pair, then swapped back to its literal
- * char afterwards. The sentinels are untouched by {@link escapeHtml} and the
- * marker rewrites, and the restored literals (`* _ \`) need no HTML escaping.
+ * Backslash escaping for inline markers: `\*`, `\_`, `\[`, `\\`. An escaped
+ * char is lifted out to a private-use sentinel *before* the marker regexes run
+ * so it can't be read as part of a `**`/`__` pair or open a link, then swapped
+ * back to its literal char afterwards. The sentinels are untouched by
+ * {@link escapeHtml} and the marker rewrites, and the restored literals
+ * (`* _ [ \`) need no HTML escaping.
  */
-const ESCAPABLE = "\\*_";
+const ESCAPABLE = "\\*_[";
 // Map each escapable char to a distinct PUA sentinel (0xE000+) and back.
 const toSentinel = new Map(
   [...ESCAPABLE].map((ch, i) => [ch, String.fromCharCode(0xe000 + i)]),
@@ -81,7 +82,7 @@ const fromSentinel = new Map(
 const SENTINELS = new RegExp(`[${[...fromSentinel.keys()].join("")}]`, "g");
 
 function protectEscapes(text: string): string {
-  return text.replace(/\\([\\*_])/g, (_m, ch: string) => toSentinel.get(ch)!);
+  return text.replace(/\\([\\*_[])/g, (_m, ch: string) => toSentinel.get(ch)!);
 }
 
 function restoreEscapes(text: string): string {
@@ -89,23 +90,56 @@ function restoreEscapes(text: string): string {
 }
 
 /**
- * Inline formatting: `**bold**` → `<strong>`, `__italic__` → `<em>`. Pulls
- * backslash-escaped markers out first, escapes HTML (the markers survive
- * escaping), rewrites markers to tags, then restores the escaped literals.
- * Bold before italic so either nesting order (`**__x__**`/`__**x**__`) resolves.
+ * `[text](url)` — no whitespace or parens in the URL (deliberately narrower
+ * than full markdown; keeps `(1)`-style prose out of hrefs).
+ */
+const LINK = /\[([^\]]+)\]\(([^()\s]+)\)/g;
+
+/**
+ * The rendered HTML lands in `{@html}`, so only linkify URLs that can't run
+ * script: scheme-less (relative/anchor) or http(s)/mailto.
+ */
+function isSafeLinkUrl(url: string): boolean {
+  const scheme = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(url);
+  return !scheme || /^(https?|mailto)$/i.test(scheme[1]);
+}
+
+/**
+ * Make a matched URL safe to sit inside `href="…"` while the marker regexes
+ * still run over the whole string: `"` can't close the attribute (→ `%22`),
+ * and `*`/`_` hide behind the escape sentinels so a URL like `/__page__`
+ * can't be read as an italic pair. {@link restoreEscapes} swaps them back.
+ */
+function hrefAttr(url: string): string {
+  return url
+    .replace(/"/g, "%22")
+    .replace(/[*_]/g, (ch) => toSentinel.get(ch)!);
+}
+
+/**
+ * Inline formatting: `[text](url)` → `<a>`, `**bold**` → `<strong>`,
+ * `__italic__` → `<em>`. Pulls backslash-escaped markers out first, escapes
+ * HTML (the markers survive escaping), rewrites markers to tags, then restores
+ * the escaped literals. Links before bold/italic so markers still work inside
+ * link text; bold before italic so either nesting order
+ * (`**__x__**`/`__**x**__`) resolves.
  */
 function inlineToHtml(text: string): string {
   return restoreEscapes(
     escapeHtml(protectEscapes(text))
+      .replace(LINK, (match, label: string, url: string) =>
+        isSafeLinkUrl(url) ? `<a href="${hrefAttr(url)}">${label}</a>` : match,
+      )
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/__(.+?)__/g, "<em>$1</em>"),
   );
 }
 
-/** Drop inline `**`/`__` markers, leaving the text they wrapped; escapes too. */
+/** Drop inline link/`**`/`__` markers, leaving the text they wrapped; escapes too. */
 function stripInline(text: string): string {
   return restoreEscapes(
     protectEscapes(text)
+      .replace(LINK, "$1")
       .replace(/\*\*(.+?)\*\*/g, "$1")
       .replace(/__(.+?)__/g, "$1"),
   );

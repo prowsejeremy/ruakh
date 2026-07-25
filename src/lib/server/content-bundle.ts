@@ -12,9 +12,16 @@ export type BundleTheme = {
   sort: number;
 };
 
+export type BundlePage = {
+  uri: string;
+  title: string;
+  linkLocation: string;
+  content: string;
+};
+
 export type ContentBundle = {
   reflections: ReflectionView[];
-  pages: { uri: string; content: string }[];
+  pages: BundlePage[];
   themes: BundleTheme[];
   generatedAt: string;
 };
@@ -31,9 +38,10 @@ export type ContentBundle = {
  * next online launch refreshes the bundle; a temporary disagreement window is
  * accepted by design (a personal ritual, not a synchronized feed).
  *
- * `pages` are carried for future offline use (the /[uri] shell is currently
- * served from the SW page cache); no client reads them yet. `themes` power the
- * preferences theme picker offline and ride the same cache.
+ * `pages` feed the preferences screen's menu/footer links offline (their
+ * bodies are still carried for future use — the /[uri] shell is served from
+ * the SW page cache). `themes` power the preferences theme picker offline and
+ * ride the same cache.
  */
 export async function buildContentBundle(now: Date): Promise<ContentBundle> {
   const published = await getPublishedReflections();
@@ -41,7 +49,12 @@ export async function buildContentBundle(now: Date): Promise<ContentBundle> {
   const themes = await getThemes();
   return {
     reflections: published.map(toReflectionView),
-    pages: pages.map((p) => ({ uri: p.uri, content: p.content })),
+    pages: pages.map((p) => ({
+      uri: p.uri,
+      title: p.title,
+      linkLocation: p.linkLocation,
+      content: p.content
+    })),
     themes: themes.map((t) => ({
       id: t.id,
       name: t.name,

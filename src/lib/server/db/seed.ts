@@ -136,6 +136,8 @@ const reflectionSeed = [
 const pageSeed = [
   {
     uri: 'about',
+    title: 'About',
+    linkLocation: 'menu' as const,
     content:
       'In the middle of a loud and fast-paced world, we invite you to slow down, and take some space. So pause, and align with the divine presence that longs to connect with you.\n' +
       '\n' +
@@ -175,7 +177,10 @@ async function main() {
     await db
       .insert(pages)
       .values(page)
-      .onConflictDoUpdate({ target: pages.uri, set: { content: page.content } });
+      .onConflictDoUpdate({
+        target: pages.uri,
+        set: { content: page.content, title: page.title, linkLocation: page.linkLocation }
+      });
   }
 
   // Migration 0003 pre-seeds the three base themes, so insert only the ones

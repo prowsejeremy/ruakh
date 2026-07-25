@@ -8,7 +8,7 @@ const body = (...parts: string[]) => parts.map(parseContent);
 
 const base: ContentBundle = {
   reflections: [{ id: 1, body: body('a'), attribution: null, source: null, copyright: null }],
-  pages: [{ uri: 'about', content: '# hi' }],
+  pages: [{ uri: 'about', title: 'About', linkLocation: 'menu', content: '# hi' }],
   themes: [{ id: 1, name: 'Sunset', bg: '#f7a31a', accent: '#f5350b', ink: '#000000', sort: 0 }],
   generatedAt: '2026-07-03T00:00:00Z'
 };
@@ -22,6 +22,13 @@ describe('hashBundle', () => {
     expect(hashBundle(base)).not.toBe(
       hashBundle({ ...base, reflections: [{ id: 1, body: body('b'), attribution: null, source: null, copyright: null }] })
     );
+  });
+
+  it("changes when a page's title or link location changes", () => {
+    const retitled = { ...base, pages: [{ ...base.pages[0], title: 'About us' }] };
+    const relocated = { ...base, pages: [{ ...base.pages[0], linkLocation: 'footer' }] };
+    expect(hashBundle(base)).not.toBe(hashBundle(retitled));
+    expect(hashBundle(base)).not.toBe(hashBundle(relocated));
   });
 
   it('changes when a theme changes', () => {

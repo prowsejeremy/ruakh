@@ -1,6 +1,8 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { deletePage, getPage, upsertPage } from '$lib/server/db/pages';
+import { pageLinkLocationError, pageTitleError } from '$lib/server/validation';
+import type { PageLinkLocation } from '$lib/page-links';
 
 const MAX_LENGTH = 10_000;
 
@@ -19,8 +21,14 @@ export const actions: Actions = {
     if (!existing) error(404, 'Not found');
 
     const form = await request.formData();
+    const title = form.get('title');
+    const linkLocation = form.get('linkLocation');
     const content = form.get('content');
 
+    const titleError = pageTitleError(title);
+    if (titleError) return fail(400, { error: titleError });
+    const locationError = pageLinkLocationError(linkLocation);
+    if (locationError) return fail(400, { error: locationError });
     if (typeof content !== 'string' || !content.trim()) {
       return fail(400, { error: 'Content is required.' });
     }
@@ -28,7 +36,11 @@ export const actions: Actions = {
       return fail(400, { error: 'Content is too long.' });
     }
 
-    await upsertPage(params.uri, content.trim());
+    await upsertPage(params.uri, {
+      title: (title as string).trim(),
+      linkLocation: linkLocation as PageLinkLocation,
+      content: content.trim()
+    });
     redirect(303, '/admin/pages');
   },
 

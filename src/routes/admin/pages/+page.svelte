@@ -22,7 +22,10 @@
   <div class="panel-list">
     {#each data.pages as p (p.uri)}
       <a class="panel-card" href="/admin/pages/{p.uri}">
-        <div class="panel-card-title">/{p.uri}</div>
+        <div class="panel-card-title">{p.title || `/${p.uri}`}</div>
+        <div class="panel-card-meta">
+          /{p.uri}{p.linkLocation === 'none' ? '' : ` · ${p.linkLocation}`}
+        </div>
         <div class="panel-card-meta">{preview(p.content)}</div>
       </a>
     {:else}

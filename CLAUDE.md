@@ -109,7 +109,7 @@ Public/visitor:
 | `/` | SSRs today's pick; client overrides with offline recompute + records history |
 | `/reflections/[id]` | Single reflection, **published-only** (404s drafts so ids can't be enumerated); `cache-control: no-cache` |
 | `/[uri]` | DB-backed markdown pages (e.g. `/about`); 404 if missing; `no-cache` |
-| `/preferences`, `/preferences/{device,history,saved,theme}` | Client-only device settings (mostly no server load; `theme` has one for SSR themes) |
+| `/preferences`, `/preferences/{device,history,saved,theme}` | Client-only device settings (mostly no server load; `theme` has one for SSR themes, and the main page has one that SSRs page links — pages with `linkLocation` `menu`/`footer` render there, falling back to the cached bundle offline) |
 | `/breathe` | Client-only guided box-breathing exercise; hides the pattern lines + Actions bar for its duration (via the shared state below), restoring them on unmount |
 
 Admin CMS — every route under `/admin` is session-gated (except `/admin/login`);
@@ -149,6 +149,7 @@ Shared library (`src/lib/`):
 | `pattern.ts` | pure geometry for `PatternBackground` (chords/coverage/interpolation) |
 | `swipe.ts` | `swipeStep` (+ `SWIPE_THRESHOLD`/`SWIPE_MAX_MS`) — pure swipe-gesture decision for the reflection slider (`ReflectionScreen`) |
 | `transitions.ts` | `reveal` staggered transition + `resolveStaggerOrder` |
+| `page-links.ts` | `groupPageLinks`, `PageLinkLocation` — pages carry a `title` + `linkLocation` (`menu`/`footer`/`none`, default `none`) placing their link on the preferences screen |
 | `client/theme.ts` | `loadTheme`/`applyTheme`/`saveTheme`/`hexToRgb` (localStorage `ruakh:theme`) |
 | `client/storage.ts` | private IndexedDB `ruakh`: favorites + history (never leaves device) |
 | `client/content.ts` | public IndexedDB `ruakh-content`: bundle cache + conditional refresh |

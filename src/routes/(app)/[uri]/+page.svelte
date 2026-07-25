@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.uri} — ruakh</title>
+  <title>{data.title || data.uri} — ruakh</title>
 </svelte:head>
 
 <!-- eslint-disable-next-line svelte/no-at-html-tags -- text is escaped in blocksToHtml -->

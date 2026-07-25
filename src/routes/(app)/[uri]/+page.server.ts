@@ -7,5 +7,5 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
   const page = await getPage(params.uri);
   if (!page) error(404, 'Not found');
   setHeaders({ 'cache-control': 'no-cache' });
-  return { uri: page.uri, blocks: parseContent(page.content) };
+  return { uri: page.uri, title: page.title, blocks: parseContent(page.content) };
 };

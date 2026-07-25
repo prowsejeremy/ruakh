@@ -9,6 +9,10 @@ describe('MARKDOWN_EXAMPLES', () => {
     expect(new Set(types)).toEqual(new Set(['h1', 'h2', 'small', 'hr', 'p']));
   });
 
+  it('documents the link syntax', () => {
+    expect(MARKDOWN_EXAMPLES.some((ex) => ex.label === 'Link')).toBe(true);
+  });
+
   it('has a non-empty label and syntax for every example', () => {
     for (const ex of MARKDOWN_EXAMPLES) {
       expect(ex.label.trim()).not.toBe('');
@@ -25,6 +29,9 @@ describe('examplePreview', () => {
     expect(examplePreview('-# A small note')).toBe('<small>A small note</small>');
     expect(examplePreview('Some **bold** text')).toBe('<p>Some <strong>bold</strong> text</p>');
     expect(examplePreview('Some __italic__ text')).toBe('<p>Some <em>italic</em> text</p>');
+    expect(examplePreview('A [link](https://example.com)')).toBe(
+      '<p>A <a href="https://example.com">link</a></p>'
+    );
     expect(examplePreview('---')).toBe('<hr />');
     expect(examplePreview('First paragraph.\n\nSecond paragraph.')).toBe(
       '<p>First paragraph.</p><p>Second paragraph.</p>'

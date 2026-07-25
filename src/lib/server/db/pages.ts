@@ -13,13 +13,19 @@ export async function getAllPages(): Promise<Page[]> {
   return db.select().from(pages).orderBy(asc(pages.uri));
 }
 
-/** Create or replace a page's content by uri. */
-export async function upsertPage(uri: string, content: string): Promise<void> {
+export type PageInput = {
+  title: string;
+  linkLocation: Page['linkLocation'];
+  content: string;
+};
+
+/** Create or replace a page by uri. */
+export async function upsertPage(uri: string, input: PageInput): Promise<void> {
   await db
     .insert(pages)
-    .values({ uri, content })
+    .values({ uri, ...input })
     // $onUpdate only fires on db.update(), not on a conflict set — bump explicitly.
-    .onConflictDoUpdate({ target: pages.uri, set: { content, updatedAt: new Date() } });
+    .onConflictDoUpdate({ target: pages.uri, set: { ...input, updatedAt: new Date() } });
 }
 
 export async function deletePage(uri: string): Promise<void> {

@@ -23,6 +23,12 @@ export const reflections = pgTable('reflections', {
 /** Editable public pages, addressed by uri; content is markdown-lite. */
 export const pages = pgTable('pages', {
   uri: text('uri').primaryKey(),
+  /** Link text when the page is surfaced on the preferences screen. */
+  title: text('title').notNull().default(''),
+  /** Where the preferences screen links this page (see $lib/page-links). */
+  linkLocation: text('link_location', { enum: ['menu', 'footer', 'none'] })
+    .notNull()
+    .default('none'),
   content: text('content').notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()

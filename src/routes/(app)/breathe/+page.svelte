@@ -69,7 +69,7 @@
   // Both persist per device (localStorage) so an off toggle stays off between
   // visits; the saved values load on mount, alongside the controller.
   let audio: BreatheAudio | undefined;
-  let musicOn = $state(true);
+  let musicOn = $state(false);
   let guideOn = $state(true);
 
   function toggleMusic() {
@@ -248,7 +248,7 @@
       </div>
 
       <div class="controls" in:reveal|global>
-        <button
+        <!-- <button
           class="audio-toggle"
           class:off={!musicOn}
           onclick={toggleMusic}
@@ -256,7 +256,7 @@
           aria-label="toggle background music"
         >
           <Icon name="music" size="2rem" background={musicOn ? 'var(--color-accent)' : undefined} />
-        </button>
+        </button> -->
         <button class="close" onclick={stop} aria-label="stop breathing exercise">
           <Icon name="close" size="2.5rem" background="var(--color-accent)" />
         </button>

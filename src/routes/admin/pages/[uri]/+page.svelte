@@ -6,6 +6,8 @@
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
 
+  let title = $state(data.page.title);
+  let linkLocation = $state(data.page.linkLocation);
   let content = $state(data.page.content);
 </script>
 
@@ -25,6 +27,20 @@
       <input type="text" value={data.page.uri} disabled />
     </label>
     <input type="hidden" name="uri" value={data.page.uri} />
+
+    <label class="panel-field">
+      Title
+      <input type="text" name="title" maxlength="120" required bind:value={title} />
+    </label>
+
+    <label class="panel-field">
+      Link location
+      <select name="linkLocation" bind:value={linkLocation}>
+        <option value="none">None</option>
+        <option value="menu">Menu</option>
+        <option value="footer">Footer</option>
+      </select>
+    </label>
 
     <div class="panel-field">
       <div class="panel-field-head">

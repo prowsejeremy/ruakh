@@ -23,6 +23,20 @@
       <input type="text" name="uri" required />
     </label>
 
+    <label class="panel-field">
+      Title
+      <input type="text" name="title" maxlength="120" required />
+    </label>
+
+    <label class="panel-field">
+      Link location
+      <select name="linkLocation">
+        <option value="none" selected>None</option>
+        <option value="menu">Menu</option>
+        <option value="footer">Footer</option>
+      </select>
+    </label>
+
     <div class="panel-field">
       <div class="panel-field-head">
         <label for="content">Content</label>

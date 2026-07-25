@@ -19,6 +19,7 @@ export const MARKDOWN_EXAMPLES: MarkdownExample[] = [
   { label: "Small note", syntax: "-# A small note" },
   { label: "Bold", syntax: "Some **bold** text" },
   { label: "Italic", syntax: "Some __italic__ text" },
+  { label: "Link", syntax: "A [link](https://example.com)" },
   { label: "Divider", syntax: "---" },
   { label: "Paragraphs", syntax: "First paragraph.\n\nSecond paragraph." },
 ];

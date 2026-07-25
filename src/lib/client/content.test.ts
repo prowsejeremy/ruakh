@@ -1,6 +1,12 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveBundle, loadBundle, getOfflineDailyReflection, clearContent } from './content';
+import {
+  saveBundle,
+  loadBundle,
+  getOfflineDailyReflection,
+  getCachedPageLinks,
+  clearContent
+} from './content';
 import { parseContent } from '../markdown';
 import type { ContentBundle } from '../server/content-bundle';
 
@@ -13,7 +19,11 @@ const bundle: ContentBundle = {
     { id: 2, body: body('b'), attribution: null, source: null, copyright: null },
     { id: 3, body: body('c'), attribution: null, source: null, copyright: null }
   ],
-  pages: [],
+  pages: [
+    { uri: 'about', title: 'About', linkLocation: 'menu', content: '# hi' },
+    { uri: 'privacy-policy', title: 'Privacy policy', linkLocation: 'footer', content: 'p' },
+    { uri: 'hidden', title: 'Hidden', linkLocation: 'none', content: 'h' }
+  ],
   themes: [],
   generatedAt: '2026-07-03T00:00:00Z'
 };
@@ -44,5 +54,17 @@ describe('content cache', () => {
 
   it('returns null with no bundle', async () => {
     expect(await getOfflineDailyReflection(new Date())).toBeNull();
+  });
+
+  it('groups cached page links for the preferences screen', async () => {
+    await saveBundle(bundle);
+    expect(await getCachedPageLinks()).toEqual({
+      menu: [{ uri: 'about', title: 'About' }],
+      footer: [{ uri: 'privacy-policy', title: 'Privacy policy' }]
+    });
+  });
+
+  it('returns empty link groups with no bundle', async () => {
+    expect(await getCachedPageLinks()).toEqual({ menu: [], footer: [] });
   });
 });
