@@ -164,13 +164,13 @@
 
   onMount(() => {
     const settings = loadBreatheSettings();
-    musicOn = settings.music;
+    // musicOn = settings.music;
     guideOn = settings.guide;
     audio = createBreatheAudio({
       backgroundSrc,
       cueSrcs: { inhale: inhaleSrc, pause: null, exhale: exhaleSrc }
     });
-    audio.setMusicEnabled(musicOn);
+    // audio.setMusicEnabled(musicOn);
     audio.setGuideEnabled(guideOn);
     return () => {
       alive = false;
